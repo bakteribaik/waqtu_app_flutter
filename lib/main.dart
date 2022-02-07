@@ -6,6 +6,7 @@ import 'package:waqtuu/Pages/waqtu_listSurah.dart';
 import 'package:waqtuu/Pages/waqtu_shalat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:waqtuu/Pages/waqtu_surah.dart';
 
 void main() {
   runApp(const MyApp());

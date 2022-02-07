@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waqtuu/Models/listSurah_model.dart';
+import 'package:waqtuu/Pages/waqtu_surah.dart';
 import 'package:waqtuu/Service/listSurah_service.dart';
 
 class ListSurahPage extends StatefulWidget {
@@ -30,6 +31,7 @@ class _ListSurahPageState extends State<ListSurahPage> {
     
   }
 
+  String ayatNumber = '';
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,13 @@ class _ListSurahPageState extends State<ListSurahPage> {
         itemBuilder: (context, index){
           return ListTile(
             onTap: (){
-              print(listSurah.data![index].name!.transliteration!.id); // ketika list surah di tekan
+              ayatNumber = listSurah.data![index].number.toString();
+              
+              Navigator.push(context, 
+              MaterialPageRoute(builder: (context) => SurahPages(
+                ayatNumber : ayatNumber,
+              ))
+              ); // ketika list surah di tekan
             },
             title: Text('${listSurah.data![index].name!.transliteration!.id}'),
             subtitle: Text('${listSurah.data![index].name!.translation!.id}'),
