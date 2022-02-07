@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:waqtuu/Models/waqtu_model.dart';
 import 'package:waqtuu/Service/service_data.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
 
 class WaqtuHome extends StatefulWidget {
   const WaqtuHome({ Key? key }) : super(key: key);
@@ -16,7 +19,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
 
   String _timeString = '';
 
-  String date = DateFormat("d MMM").format(DateTime.now());
+  String date = DateFormat("d MMM yyyy").format(DateTime.now());
   String time = DateFormat("HH:mm").format(DateTime.now());
   String dateInput = DateFormat("yyyy-MM-dd").format(DateTime.now());
 
@@ -25,24 +28,64 @@ class _WaqtuHomeState extends State<WaqtuHome> {
 
   bool isFetch = false;
 
+  String location = '';
+  String Address = '';
+
+  Future<Position> _getGeoLocationPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+ 
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      print('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print('Location permissions are denied');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+
+  Future<void> GetAddressFromLatLong(Position position)async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark place = placemarks[0];
+    Address = '${place.subLocality}';
+    setState((){});
+  }
 
   _getData () async {
-    sholat = await dataService.fetchData('ciputat', dateInput);
-    setState(() {});
+    sholat = await dataService.fetchData('jakarta', dateInput);
     isFetch = true;
+    setState(() {});
   }
 
    _getTime() {
     final String formattedDateTime =
         DateFormat('HH:mm').format(DateTime.now()).toString();
-    setState(() {
+    if (this.mounted) {
+      setState(() {
       _timeString = formattedDateTime;
-    });
+      });
+    }
+  }
+
+  _getLocation() async {
+    Position position = await _getGeoLocationPosition();
+    GetAddressFromLatLong(position);
   }
 
   @override
   void initState() {
     super.initState();
+    _getLocation();
     _getData();
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
   }
@@ -54,21 +97,16 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Color(0xff2EB086)),
         backgroundColor: Colors.transparent,
         centerTitle: true,
         elevation: 0.0,
         title: Text('WAQTU SHALAT', style: TextStyle(
-          color: Colors.black87,
+          color: Color(0xff2EB086),
           fontWeight: FontWeight.bold,
           fontSize: 16,
           fontFamily: 'Poppins'
         )),
-        actions: [
-          IconButton(
-            onPressed: (){}, 
-            icon: Icon(Icons.exit_to_app),
-            color: Colors.black87,)
-        ],
       ),
 
       body: SafeArea(
@@ -87,7 +125,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                    Container(
                      child: Row(
                        children: [
-                          Text(sholat.results!.location!.city.toString(),style: TextStyle( // Nama kota
+                          Text(Address + ' dan sekitarnya',style: TextStyle( // Nama kota
                             color: Colors.grey
                           ),),
 
@@ -111,17 +149,18 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     Container(
                       child: Row(
                         children: [
-                          Text(date, style: TextStyle(
+                          Text(date, style: TextStyle( // TANGGAL
                             fontWeight: FontWeight.bold,
-                            fontSize: 24
+                            fontSize: 25
                           ),),
 
-                          SizedBox(width: 5,),
+                          SizedBox(width: 7,),
 
-                          Text(_timeString, style: TextStyle(
+                          Text(_timeString, style: TextStyle( // JAM
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
-                          ),)
+                          ),
+                          textAlign: TextAlign.end,)
                         ],
                       ),
                     )
@@ -134,7 +173,6 @@ class _WaqtuHomeState extends State<WaqtuHome> {
               Container(
                 padding: EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width,
-                height: 500,
                 decoration: BoxDecoration(
                   color: Colors.green[600],
                   borderRadius: BorderRadius.circular(10)
@@ -150,7 +188,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                         children: [
                           Text('Reminder ! ', style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 30,
+                            fontSize: 20,
                             color: Colors.white
                           ),),
 
@@ -160,16 +198,16 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           style: TextStyle(
                             color: Colors.white60,
                             fontStyle: FontStyle.italic,
-                            fontSize: 13
+                            fontSize: 10
                           ),)
                         ],
                       ),
                     ),
 
-                    SizedBox(height: 40,),
+                    SizedBox(height: 30,),
 
                     Container(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
+                      padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -178,8 +216,8 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                       child: Row(
                         children: [
                           Container(
-                           width: MediaQuery.of(context).size.width/2.5,
-                           child: Text('Subuh', style: TextStyle(fontSize: 18),),
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Subuh', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -200,7 +238,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     SizedBox(height: 5,),
 
                     Container(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
+                      padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -209,8 +247,8 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                       child: Row(
                         children: [
                           Container(
-                           width: MediaQuery.of(context).size.width/2.5,
-                           child: Text('Dzuhur', style: TextStyle(fontSize: 18),),
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Dzuhur', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -231,7 +269,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     SizedBox(height: 5,),
 
                     Container(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
+                      padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -240,8 +278,8 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                       child: Row(
                         children: [
                           Container(
-                           width: MediaQuery.of(context).size.width/2.5,
-                           child: Text('Ashar', style: TextStyle(fontSize: 18),),
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Ashar', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -262,7 +300,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     SizedBox(height: 5,),
 
                     Container(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
+                      padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -271,8 +309,8 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                       child: Row(
                         children: [
                           Container(
-                           width: MediaQuery.of(context).size.width/2.5,
-                           child: Text('Maghrib', style: TextStyle(fontSize: 18),),
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Maghrib', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -293,7 +331,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     SizedBox(height: 5,),
 
                     Container(
-                      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
+                      padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -302,8 +340,8 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                       child: Row(
                         children: [
                           Container(
-                           width: MediaQuery.of(context).size.width/2.5,
-                           child: Text('Isya', style: TextStyle(fontSize: 18),),
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Isya', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -326,16 +364,13 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                   ],
                 ),
               ),
-
-              SizedBox(height: 50,),
-
-              Center(child: Text('Copyrighted (c) Zulfikar Alwi Studio 2022', style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey
-              ),),)
             ],
           ),
-        ) : SizedBox(),
+        ) : SizedBox(
+          child: Center(
+            child: CircularProgressIndicator(color: Color(0xff2EB086),),
+          ),
+        ),
       )
     );
   }

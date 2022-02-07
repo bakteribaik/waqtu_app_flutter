@@ -133,7 +133,7 @@ class Times {
 }
 
 class Date {
-  int? timestamp;
+  num? timestamp;
   String? gregorian;
   String? hijri;
 
@@ -157,17 +157,16 @@ class Date {
 class Location {
   double? latitude;
   double? longitude;
-  int? elevation;
+  double? elevation;
   String? city;
   String? country;
   String? countryCode;
   String? timezone;
-  int? localOffset;
+  num? localOffset;
 
   Location(
       {this.latitude,
       this.longitude,
-      this.elevation,
       this.city,
       this.country,
       this.countryCode,
@@ -177,7 +176,6 @@ class Location {
   Location.fromJson(Map<String, dynamic> json) {
     latitude = json['latitude'];
     longitude = json['longitude'];
-    elevation = json['elevation'];
     city = json['city'];
     country = json['country'];
     countryCode = json['country_code'];
@@ -204,8 +202,8 @@ class Settings {
   String? school;
   String? juristic;
   String? highlat;
-  int? fajrAngle;
-  int? ishaAngle;
+  num? fajrAngle;
+  num? ishaAngle;
 
   Settings(
       {this.timeformat,
