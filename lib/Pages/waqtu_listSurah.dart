@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waqtuu/Models/listSurah_model.dart';
-import 'package:waqtuu/Pages/waqtu_surah.dart';
+import 'package:waqtuu/Pages/bacaQuranOffline.dart';
 import 'package:waqtuu/Service/listSurah_service.dart';
 
 class ListSurahPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _ListSurahPageState extends State<ListSurahPage> {
     
   }
 
-  String ayatNumber = '';
+  int ayatNumber = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +46,20 @@ class _ListSurahPageState extends State<ListSurahPage> {
         ],
       ),
       body: isFetch ? Container(
-        padding: EdgeInsets.only(left: 18, right: 18),
+        padding: EdgeInsets.only(left: 5, right: 18),
         child: ListView.builder(
         itemCount: listSurah.data!.length,
         itemBuilder: (context, index){
           return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Color(0xff2EB086),
+              child: Text(listSurah.data![index].number.toString(), style: TextStyle(color: Colors.white),),
+            ),
             onTap: (){
-              ayatNumber = listSurah.data![index].number.toString();
-              
+              ayatNumber = listSurah.data![index].number!;
               Navigator.push(context, 
-              MaterialPageRoute(builder: (context) => SurahPages(
-                ayatNumber : ayatNumber,
+              MaterialPageRoute(builder: (context) => QuranOfflinePage(
+                surahNumber : ayatNumber,
               ))
               ); // ketika list surah di tekan
             },

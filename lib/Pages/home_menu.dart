@@ -1,4 +1,6 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:waqtuu/Pages/waqtu_listSurah.dart';
 import 'package:waqtuu/Pages/waqtu_shalat.dart';
 
@@ -10,6 +12,9 @@ class homeMenu extends StatefulWidget {
 }
 
 class _homeMenuState extends State<homeMenu> {
+
+  bool? internet;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,25 +35,6 @@ class _homeMenuState extends State<homeMenu> {
          child: Column(
            crossAxisAlignment: CrossAxisAlignment.center,
            children: [
-             Container(
-               width: MediaQuery.of(context).size.width,
-               padding: EdgeInsets.all(10),
-               decoration: BoxDecoration(
-                 color: Colors.black12,
-                 borderRadius: BorderRadius.circular(14)
-               ),
-               child: Row(
-                 children: [
-                   CircleAvatar(
-                     backgroundColor: Colors.white,
-                     child: Icon(Icons.usb_rounded, color: Colors.green[400],),
-                   ),
-                   SizedBox(width: 10,),
-                   Text('entah mau di isi apa')
-                 ],
-               ),
-             ),
-
               SizedBox(height: 30,),
 
              Container(
@@ -61,7 +47,7 @@ class _homeMenuState extends State<homeMenu> {
                ),
              ),
 
-               SizedBox(height: 10,),
+               SizedBox(height: 30,),
 
              Container(
                height: MediaQuery.of(context).size.height/2,
@@ -76,9 +62,13 @@ class _homeMenuState extends State<homeMenu> {
                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                        children: [
                          InkWell(
-                           onTap: (){
-                             Navigator.push(context, 
-                             MaterialPageRoute(builder: (context) => const WaqtuHome()));
+                           onTap: () async {
+                             if( await Connectivity().checkConnectivity() == ConnectivityResult.wifi || await Connectivity().checkConnectivity() == ConnectivityResult.mobile){
+                                Navigator.push(context, 
+                                MaterialPageRoute(builder: (context) => const WaqtuHome()));
+                             }else{
+                               Fluttertoast.showToast(msg: 'No internet Connection', backgroundColor: Color(0xffB8045E), textColor: Colors.white,);
+                             }
                            },
                            child:  Container(
                               padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
@@ -88,9 +78,8 @@ class _homeMenuState extends State<homeMenu> {
                               ),
                               child: Column(
                                 children: [
-                                  Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  SizedBox(height: 10,),
-                                  Container(child: Text('Jadwal Shalat', style: TextStyle(color: Colors.white),),),
+                                  Text('Jadwal Shalat', style: TextStyle(color: Colors.white),),
+                                  Text('Online', style: TextStyle(color: Colors.white),)
                                 ],
                               ),
                           ),
@@ -105,13 +94,12 @@ class _homeMenuState extends State<homeMenu> {
                               padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Color(0xffB8405E),
+                                color: Color(0xff2EB086),
                               ),
                               child: Column(
                                 children: [
-                                  Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  SizedBox(height: 10,),
-                                  Container(child: Text("Baca Al'Quran", style: TextStyle(color: Colors.white),),),
+                                  Text("Baca Al'Quran", style: TextStyle(color: Colors.white),),
+                                  Text('Offline/Online', style: TextStyle(color: Colors.white),)
                                 ],
                               ),
                           ),
@@ -132,12 +120,12 @@ class _homeMenuState extends State<homeMenu> {
                               padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                 color: Color(0xff2EB086),
+                                 color: Color(0xffB8405E),
                               ),
                               child: Column(
                                 children: [
-                                  Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  SizedBox(height: 10,),
+                                  // Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
+                                  // SizedBox(height: 10,),
                                   Container(child: Text(' Coming soon', style: TextStyle(color: Colors.white),),),
                                 ],
                               ),
@@ -153,8 +141,8 @@ class _homeMenuState extends State<homeMenu> {
                                 color: Color(0xff313552),),
                               child: Column(
                                 children: [
-                                  Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  SizedBox(height: 10,),
+                                  // Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
+                                  // SizedBox(height: 10,),
                                   Container(child: Text(' Coming soon', style: TextStyle(color: Colors.white),),),
                                 ],
                               ),
