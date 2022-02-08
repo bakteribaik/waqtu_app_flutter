@@ -41,7 +41,6 @@ dependencies:
   audioplayers: ^0.20.1
   fluttertoast: ^8.0.8
   connectivity_plus: ^2.2.0
-  permission_handler: ^8.3.0
 
 dev_dependencies:
   flutter_test:

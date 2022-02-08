@@ -24,6 +24,7 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
 
   int? ayat;
   String? ayatName;
+  int? ayatNumber;
 
   
   
@@ -31,7 +32,7 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
   play(ayat) async {
     if(await Connectivity().checkConnectivity() == ConnectivityResult.wifi){
         await audioPlayer.play("https://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/$ayat");
-        Fluttertoast.showToast(msg: 'Surat ${ayatName} ayat ${ayat}', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+        Fluttertoast.showToast(msg: 'Surat ${ayatName} ayat ${ayatNumber}', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
     }else{
       Internet = true;
       Fluttertoast.showToast(msg: 'No internet Connection', backgroundColor: Color(0xffB8045E), textColor: Colors.white,);
@@ -85,6 +86,7 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
            return ListTile(
              tileColor: quran.data![widget.surahNumber -1].verses![index].number!.inSurah!.isEven ? Colors.transparent : Colors.green[50],
               onTap: (){
+                ayatNumber = quran.data![widget.surahNumber - 1].verses![index].number!.inSurah;
                 ayatName = quran.data![widget.surahNumber - 1].name!.transliteration!.id;
                   play(quran.data![widget.surahNumber-1].verses![index].number!.inQuran!);
                 },
