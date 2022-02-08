@@ -30,7 +30,7 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
   
 
   play(ayat) async {
-    if(await Connectivity().checkConnectivity() == ConnectivityResult.wifi){
+    if(await Connectivity().checkConnectivity() == ConnectivityResult.wifi || await Connectivity().checkConnectivity() == ConnectivityResult.mobile){
         await audioPlayer.play("https://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/$ayat");
         Fluttertoast.showToast(msg: 'Surat ${ayatName} ayat ${ayatNumber}', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
     }else{
