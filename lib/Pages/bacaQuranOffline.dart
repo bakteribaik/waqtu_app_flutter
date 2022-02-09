@@ -42,6 +42,8 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
   QuranService quranService = QuranService();
   model.Quran quran = model.Quran();
 
+  double Textsize = 24;
+
   bool isFetch = false;
   bool Internet = false;
 
@@ -76,6 +78,25 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
             ],
           ),
         ) : Text('Loading ...'),
+        actions: [
+          Row(
+            children: [
+                    IconButton(onPressed: (){
+                    setState(() {
+                      Textsize--;
+                    });
+                    print(Textsize);
+                }, icon: Icon(Icons.zoom_out)),
+
+                IconButton(onPressed: (){
+                    setState(() {
+                      Textsize++;
+                    });
+                    print(Textsize);
+                }, icon: Icon(Icons.zoom_in)),
+            ],
+          )
+        ],
         centerTitle: true,
       ),
       body: isFetch ? Container(
@@ -92,12 +113,24 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
                 },
               title: Text('${quran.data![widget.surahNumber - 1].verses![index].text!.arab}', textAlign: TextAlign.end, style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 24
+                fontSize: Textsize,
               ),),
-              subtitle: Text('${quran.data![widget.surahNumber - 1].verses![index].text!.transliteration!.en}', textAlign: TextAlign.end, style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey
-              ),),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('${quran.data![widget.surahNumber - 1].verses![index].text!.transliteration!.en}', textAlign: TextAlign.end, style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: Textsize - 12,
+                  ),),
+                  Divider(),
+                  Text('${quran.data![widget.surahNumber - 1].verses![index].translation!.id}', textAlign: TextAlign.end, style: TextStyle(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                    fontSize: Textsize - 12,
+                  ),),
+                ],
+              ),
               trailing: CircleAvatar(
                 backgroundColor: Color(0xff2EB086) ,
                 maxRadius: 15,

@@ -1,6 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:waqtuu/Pages/waqtu_listSurah.dart';
 import 'package:waqtuu/Pages/waqtu_shalat.dart';
 
@@ -19,13 +21,21 @@ class _homeMenuState extends State<homeMenu> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text('WAQTU', style: TextStyle(fontSize: 14, color: Color(0xff2EB086), fontWeight: FontWeight.bold),),
+        title: Text('WAQTU', style: TextStyle(fontSize: 24, color: Color(0xff2EB086), fontWeight: FontWeight.bold),),
         elevation: 0.0,
         backgroundColor: Colors.transparent,
-        leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu), color: Color(0xff2EB086),),
+        //leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu), color: Color(0xff2EB086),),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.call), color: Color(0xff2EB086),)
+          TextButton(
+            onPressed: () async {
+              final url = 'https://wa.me/6283808503597?text=hallo%20admin%20waqtu';
+              if(await canLaunch(url) && await Connectivity().checkConnectivity() == ConnectivityResult.wifi && await Connectivity().checkConnectivity() == ConnectivityResult.wifi){
+                await launch(url);
+              }else(
+                Fluttertoast.showToast(msg: 'No Internet Connection')
+              );
+            }, 
+            child: Text('Need Help?', style: TextStyle(color: Color(0xff2EB086),),))
         ],
       ),
       body: SafeArea(
@@ -40,9 +50,7 @@ class _homeMenuState extends State<homeMenu> {
              Container(
                child: Row(
                  children: [
-                   Text('Hello, ', style: TextStyle(color: Colors.grey, fontSize: 30),),
-                   SizedBox(),
-                   Text('Kamu', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+                   Text("WaQtu is an app for read Al'Quran \nand known time for pray", style: TextStyle(color: Colors.grey, fontSize: 12),),
                  ],
                ),
              ),
@@ -58,7 +66,7 @@ class _homeMenuState extends State<homeMenu> {
                child: Column(
                  children: [
                    Container(
-                     child: Row(
+                     child: Column(
                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                        children: [
                          InkWell(
@@ -71,6 +79,7 @@ class _homeMenuState extends State<homeMenu> {
                              }
                            },
                            child:  Container(
+                             width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
@@ -78,12 +87,15 @@ class _homeMenuState extends State<homeMenu> {
                               ),
                               child: Column(
                                 children: [
+                                  Icon(Icons.timer, color: Colors.white,  size: 40,),
+                                  SizedBox(height: 10,),
                                   Text('Jadwal Shalat', style: TextStyle(color: Colors.white),),
-                                  Text('Online', style: TextStyle(color: Colors.white),)
                                 ],
                               ),
                           ),
                          ),
+
+                          SizedBox(height: 10,),
 
                          InkWell(
                            onTap: (){
@@ -91,6 +103,7 @@ class _homeMenuState extends State<homeMenu> {
                              MaterialPageRoute(builder: (context) => const ListSurahPage()));
                            },
                            child:  Container(
+                             width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
@@ -98,8 +111,9 @@ class _homeMenuState extends State<homeMenu> {
                               ),
                               child: Column(
                                 children: [
+                                  Icon(Icons.menu_book, color: Colors.white, size: 40,),
+                                  SizedBox(height: 10,),
                                   Text("Baca Al'Quran", style: TextStyle(color: Colors.white),),
-                                  Text('Offline/Online', style: TextStyle(color: Colors.white),)
                                 ],
                               ),
                           ),
@@ -110,47 +124,6 @@ class _homeMenuState extends State<homeMenu> {
 
                     SizedBox(height: 20,),
 
-                   Container(
-                     child: Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                       children: [
-                         InkWell(
-                           onTap: (){},
-                           child:  Container(
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                 color: Color(0xffB8405E),
-                              ),
-                              child: Column(
-                                children: [
-                                  // Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  // SizedBox(height: 10,),
-                                  Container(child: Text(' Coming soon', style: TextStyle(color: Colors.white),),),
-                                ],
-                              ),
-                          ),
-                         ),
-
-                         InkWell(
-                           onTap: (){},
-                           child:  Container(
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xff313552),),
-                              child: Column(
-                                children: [
-                                  // Container(child: Icon(Icons.monochrome_photos, color: Colors.white,),),
-                                  // SizedBox(height: 10,),
-                                  Container(child: Text(' Coming soon', style: TextStyle(color: Colors.white),),),
-                                ],
-                              ),
-                          ),
-                         ),
-                       ],
-                     ),
-                   ),
                  ],
                ),
              ),

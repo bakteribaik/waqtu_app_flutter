@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:waqtuu/Models/waqtu_model.dart';
 import 'package:waqtuu/Service/service_data.dart';
@@ -174,7 +175,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                 padding: EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                  color: Colors.green[600],
+                  color: Color(0xff2EB086),
                   borderRadius: BorderRadius.circular(10)
                 ),
                 child: Column(
@@ -221,15 +222,17 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
-                           child: Text(sholat.results!.datetime![0].times!.fajr.toString(), style: TextStyle(
+                           child: Text('± ' + sholat.results!.datetime![0].times!.fajr.toString(), style: TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 17,
-                             color: Colors.greenAccent
+                             color: Color(0xff2EB086)
                            ),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){}, icon: Icon(Icons.alarm),),
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
@@ -252,15 +255,18 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
-                           child: Text(sholat.results!.datetime![0].times!.dhuhr.toString(), style: TextStyle(
+                           child: Text('± ' + sholat.results!.datetime![0].times!.dhuhr.toString(), style: TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 17,
-                             color: Colors.greenAccent
+                             color: Color(0xff2EB086)
+                             
                            ),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){}, icon: Icon(Icons.alarm),),
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
@@ -283,15 +289,17 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
-                           child: Text(sholat.results!.datetime![0].times!.asr.toString(), style: TextStyle(
+                           child: Text('± ' + sholat.results!.datetime![0].times!.asr.toString(), style: TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 17,
-                             color: Colors.greenAccent
+                             color: Color(0xff2EB086)
                            ),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){}, icon: Icon(Icons.alarm),),
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
@@ -314,15 +322,17 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
-                           child: Text(sholat.results!.datetime![0].times!.maghrib.toString(), style: TextStyle(
+                           child: Text('± ' + sholat.results!.datetime![0].times!.maghrib.toString(), style: TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 17,
-                             color: Colors.greenAccent
+                             color: Color(0xff2EB086)
                            ),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){}, icon: Icon(Icons.alarm),),
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
@@ -345,15 +355,17 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
-                           child: Text(sholat.results!.datetime![0].times!.isha.toString(), style: TextStyle(
+                           child: Text('± ' + sholat.results!.datetime![0].times!.isha.toString(), style: TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 17,
-                             color: Colors.greenAccent
+                             color: Color(0xff2EB086)
                            ),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){}, icon: Icon(Icons.alarm),),
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
