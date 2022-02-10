@@ -2,34 +2,31 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:waqtuu/Pages/DzikirPages/alfatiha.dart';
-import 'package:waqtuu/Pages/DzikirPages/azirnaminannar.dart';
-import 'package:waqtuu/Pages/DzikirPages/lailahillallah.dart';
-import 'package:waqtuu/Pages/home_menu.dart';
 
-class AllahummaPages extends StatefulWidget {
-  const AllahummaPages({ Key? key }) : super(key: key);
+import '../home_menu.dart';
+
+class AyatKursiPages extends StatefulWidget {
+  const AyatKursiPages({ Key? key }) : super(key: key);
 
   @override
-  _AllahummaPagesState createState() => _AllahummaPagesState();
+  _AyatKursiPagesState createState() => _AyatKursiPagesState();
 }
 
-class _AllahummaPagesState extends State<AllahummaPages> {
-   int counter = 0;
-   bool isChecked = false;
+class _AyatKursiPagesState extends State<AyatKursiPages> {
+  int counter = 0;
+  bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Dzikir 3',
+          'Ayat Kursi',
           style: TextStyle(
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         elevation: 0.0,
         backgroundColor: Color(0xff2EB086),
-        //leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu), color: Color(0xff2EB086),),
         actions: [
           TextButton(
               onPressed: () async {
@@ -56,10 +53,11 @@ class _AllahummaPagesState extends State<AllahummaPages> {
             SizedBox(
               height: 50,
             ),
+            Text('Membaca Ayat Kursi'),
             Container(
               padding: EdgeInsets.all(10),
               child: Text(
-                'للَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلَامُ، وَإِلَيْكَ يَعُوْدُ السَّلَامُ فَحَيِّنَارَبَّنَا بِالسَّلَامِ وَاَدْخِلْنَا الْـجَنَّةَ دَارَ السَّلَامِ تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ يَا ذَاالْـجَلَالِ وَاْلإِكْرَام',
+                'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ. بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ. اَللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَّلَانَوْمٌ، لَهُ مَافِي السَّمَاوَاتِ وَمَافِي اْلأَرْضِ مَن ذَا الَّذِيْ يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَابَيْنَ أَيْدِيْهِمْ وَمَاخَلْفَهُمْ وَلَا يُحِيْطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَآءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَاْلأَرْضَ وَلَا يَـؤدُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيْمُ',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -70,10 +68,10 @@ class _AllahummaPagesState extends State<AllahummaPages> {
 
             Container(
               padding: EdgeInsets.all(10),
-              child: Text("Allahumma Angtassalam, Wamingkassalam, Wa Ilayka Ya'uudussalam Fakhayyina Rabbanaa Bissalaam Wa-Adkhilnaljannata Darossalaam Tabarokta Rabbanaa Wata'alayta Yaa Dzaljalaali Wal Ikraam", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+              child: Text("", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
             ),
 
-            SizedBox(height: 100,),
+            SizedBox(height: 5,),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -103,7 +101,7 @@ class _AllahummaPagesState extends State<AllahummaPages> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const AlfatihaPages()));
+                              builder: (context) => const homeMenu()));
                   },
                   child: Container(
                     padding: EdgeInsets.only(top: 20, bottom: 20),

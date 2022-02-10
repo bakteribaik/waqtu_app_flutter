@@ -2,6 +2,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:waqtuu/Pages/DzikirPages/alfatiha.dart';
+import 'package:waqtuu/Pages/DzikirPages/azirnaminannar.dart';
 import 'package:waqtuu/Pages/home_menu.dart';
 
 class LailahaillahPage extends StatefulWidget {
@@ -85,9 +87,8 @@ class _LailahaillahPageState extends State<LailahaillahPage> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const homeMenu()));
-                    }
-                    setState(() {
+                              builder: (context) => const AzirnaPage()));
+                    }setState(() {
                       counter++;
                     });
                   },

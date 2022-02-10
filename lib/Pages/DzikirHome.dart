@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:waqtuu/Pages/DzikirPages/allahumma.dart';
 import 'package:waqtuu/Pages/DzikirPages/azirnaminannar.dart';
+import 'package:waqtuu/Pages/DzikirPages/lailahillallah.dart';
 
 class DzikirPage extends StatefulWidget {
   const DzikirPage({Key? key}) : super(key: key);
@@ -86,9 +87,8 @@ class _DzikirPageState extends State<DzikirPage> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const AzirnaPage()));
-                    }
-                    setState(() {
+                              builder: (context) => const LailahaillahPage()));
+                    }setState(() {
                       counter++;
                     });
                   },
