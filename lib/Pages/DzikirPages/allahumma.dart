@@ -23,7 +23,7 @@ class _AllahummaPagesState extends State<AllahummaPages> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Dzikir 3',
+          'Dzikir 4',
           style: TextStyle(
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -62,7 +62,7 @@ class _AllahummaPagesState extends State<AllahummaPages> {
                 'للَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلَامُ، وَإِلَيْكَ يَعُوْدُ السَّلَامُ فَحَيِّنَارَبَّنَا بِالسَّلَامِ وَاَدْخِلْنَا الْـجَنَّةَ دَارَ السَّلَامِ تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ يَا ذَاالْـجَلَالِ وَاْلإِكْرَام',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),

@@ -21,13 +21,12 @@ class _LailahaillahPageState extends State<LailahaillahPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Dzikir 4',
+          'Dzikir 2',
           style: TextStyle(
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         elevation: 0.0,
         backgroundColor: Color(0xff2EB086),
-        //leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu), color: Color(0xff2EB086),),
         actions: [
           TextButton(
               onPressed: () async {
@@ -61,7 +60,7 @@ class _LailahaillahPageState extends State<LailahaillahPage> {
                 'لَاإِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِيْ وَيُمِيْتُ وَهُوَ عَلَى كُلِّ شَيْئٍ قَدِيْرٌ',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),

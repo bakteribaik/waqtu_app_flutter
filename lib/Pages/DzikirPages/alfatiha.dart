@@ -21,7 +21,7 @@ class _AlfatihaPagesState extends State<AlfatihaPages> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Al Fatiha',
+          'Al Fatihah',
           style: TextStyle(
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -60,7 +60,7 @@ class _AlfatihaPagesState extends State<AlfatihaPages> {
                 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\n\nالْحَمْدُ لِلَّهِ رَبِّ الْعالَمِينَ\nالرَّحْمنِ الرَّحِيمِ\nمَالِكِ يَوْمِ الدِّينِ\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\nاهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ\nصِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلا الضَّالِّينَ',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),

@@ -42,7 +42,7 @@ class _ListSurahPageState extends State<ListSurahPage> {
     return Scaffold(
      appBar: AppBar(
         centerTitle: true,
-        title: Text("Suratul Qur'an", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+        title: Text("Waqtu Al Qur'an", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
         elevation: 0.0,
         backgroundColor: Color(0xff2EB086),
         actions: [
@@ -71,7 +71,8 @@ class _ListSurahPageState extends State<ListSurahPage> {
                 Text('${listSurah.data![index].name!.transliteration!.id}', style: TextStyle(
                   color: Colors.black54,
                   fontWeight: FontWeight.bold,
-                  fontSize: 17
+                
+                  fontSize: 15
                 ),),
                 Text('${listSurah.data![index].name!.translation!.id}', style: TextStyle(
                   color: Colors.grey,
@@ -87,11 +88,19 @@ class _ListSurahPageState extends State<ListSurahPage> {
               ))
               ); // ketika list surah di tekan
             },
-            title: Text('${listSurah.data![index].name!.short}', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.end,), 
-            trailing: CircleAvatar(
-              backgroundColor: Color(0xff2EB086),
-              child: Text(listSurah.data![index].number.toString(), style: TextStyle(color: Colors.white),),
-            ),
+            title: Text('${listSurah.data![index].name!.short}', style: TextStyle(fontSize: 24, fontFamily: 'Misbah',), textAlign: TextAlign.end,), 
+            trailing: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                //  color: Colors.red,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/ayat_frame.png')
+                )
+              ),
+             
+              child: Center(child: Text(listSurah.data![index].number.toString(), style: TextStyle(color:Color(0xff2EB086)),),)
+            )
           );
         }),
       ) : SizedBox(),

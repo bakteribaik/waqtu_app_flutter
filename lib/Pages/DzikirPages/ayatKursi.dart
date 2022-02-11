@@ -51,16 +51,16 @@ class _AyatKursiPagesState extends State<AyatKursiPages> {
         child: Column(
           children: [
             SizedBox(
-              height: 50,
+              height: 30,
             ),
             Text('Membaca Ayat Kursi'),
             Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(20),
               child: Text(
                 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ. بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ. اَللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَّلَانَوْمٌ، لَهُ مَافِي السَّمَاوَاتِ وَمَافِي اْلأَرْضِ مَن ذَا الَّذِيْ يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَابَيْنَ أَيْدِيْهِمْ وَمَاخَلْفَهُمْ وَلَا يُحِيْطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَآءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَاْلأَرْضَ وَلَا يَـؤدُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيْمُ',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -97,11 +97,7 @@ class _AyatKursiPagesState extends State<AyatKursiPages> {
         padding: EdgeInsets.all(10),
         child: InkWell(
                   onTap: () async {
-                    
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const homeMenu()));
+                      Navigator.of(context).pop();
                   },
                   child: Container(
                     padding: EdgeInsets.only(top: 20, bottom: 20),

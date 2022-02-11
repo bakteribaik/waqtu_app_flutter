@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:waqtuu/Models/surahoffline_model.dart' as model;
+import 'package:waqtuu/Pages/TafsirPage.dart';
 import 'package:waqtuu/Service/surahoffline_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+
 
 class QuranOfflinePage extends StatefulWidget {
 
@@ -71,7 +73,7 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
           child: Column(
             children: [
               Text('${quran.data![widget.surahNumber - 1].name!.transliteration!.id}', style: TextStyle(fontWeight: FontWeight.bold),),
-              Text('${quran.data![widget.surahNumber - 1].revelation!.id}', style: TextStyle(fontSize: 10),),
+              Text('${quran.data![widget.surahNumber - 1].revelation!.id} | ${quran.data![widget.surahNumber -1].numberOfVerses} ayat', style: TextStyle(fontSize: 10),),
             ],
           ),
         ) : Text('Loading ...'),
@@ -82,15 +84,13 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
                     setState(() {
                       Textsize--;
                     });
-                    print(Textsize);
-                }, icon: Icon(Icons.zoom_out)),
+                }, icon: Icon(Icons.remove_circle_outline)),
 
                 IconButton(onPressed: (){
                     setState(() {
                       Textsize++;
                     });
-                    print(Textsize);
-                }, icon: Icon(Icons.zoom_in)),
+                }, icon: Icon(Icons.control_point)),
             ],
           )
         ],
@@ -103,18 +103,29 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
           itemBuilder: (context, index){
            return ListTile(
              tileColor: quran.data![widget.surahNumber -1].verses![index].number!.inSurah!.isEven ? Colors.transparent : Colors.green[50],
+              onLongPress: (){
+                Navigator.push(context, 
+                MaterialPageRoute(builder: (contex) => TafsirPages(
+                  ayatNumber : quran.data![widget.surahNumber - 1].verses![index].number!.inSurah!,
+                  SurahNumber: widget.surahNumber,
+                )));
+              },
               onTap: (){
                 ayatNumber = quran.data![widget.surahNumber - 1].verses![index].number!.inSurah;
                 ayatName = quran.data![widget.surahNumber - 1].name!.transliteration!.id;
                   play(quran.data![widget.surahNumber-1].verses![index].number!.inQuran!);
                 },
-              title: Text('${quran.data![widget.surahNumber - 1].verses![index].text!.arab}', textAlign: TextAlign.end, style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Textsize,
-              ),),
+              title:  Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                child: Text('${quran.data![widget.surahNumber - 1].verses![index].text!.arab}', textAlign: TextAlign.end, style: TextStyle(
+                    fontSize: Textsize,
+                    fontFamily: 'Misbah'
+                  ),),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  SizedBox(height: 5,),
                   Text('${quran.data![widget.surahNumber - 1].verses![index].text!.transliteration!.en}', textAlign: TextAlign.end, style: TextStyle(
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,
@@ -128,11 +139,18 @@ class _QuranOfflinePageState extends State<QuranOfflinePage> {
                   ),),
                 ],
               ),
-              trailing: CircleAvatar(
-                backgroundColor: Color(0xff2EB086) ,
-                maxRadius: 15,
-                child: Text('${quran.data![widget.surahNumber - 1].verses![index].number!.inSurah}', style: TextStyle(color: Colors.white),),
+              trailing: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                //  color: Colors.red,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/ayat_frame.png')
+                )
               ),
+             
+              child: Center(child: Text(quran.data![widget.surahNumber -  1].verses![index].number!.inSurah.toString(), style: TextStyle(color:Color(0xff2EB086)),),)
+            )
            );
         }),
       ) : SizedBox()

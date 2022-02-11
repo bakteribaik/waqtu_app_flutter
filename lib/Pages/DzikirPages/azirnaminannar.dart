@@ -20,7 +20,7 @@ class _AzirnaPageState extends State<AzirnaPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Dzikir 2',
+          'Dzikir 3',
           style: TextStyle(
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -53,13 +53,14 @@ class _AzirnaPageState extends State<AzirnaPage> {
               height: 50,
             ),
             Text('7x Allahumma ajirni minan-naar'),
+            SizedBox(height: 10,),
             Container(
               padding: EdgeInsets.all(10),
               child: Text(
                 'اَللَّهُمَّ أَجِرْنِـى مِنَ النَّارِ',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),

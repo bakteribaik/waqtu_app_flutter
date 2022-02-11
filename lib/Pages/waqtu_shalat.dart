@@ -180,33 +180,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                 ),
                 child: Column(
                   children: [
-                    SizedBox(height: 10,),
-
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Reminder ! ', style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white
-                          ),),
-
-                          SizedBox(height: 10,),
-
-                          Text('Tidak ada shalat yang paling berat dilakukan \noleh orang munafik kecuali shalat Shubuh dan \nshalat Isya. [HR. Bukhari no. 657 dan Muslim no. 651]',
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontStyle: FontStyle.italic,
-                            fontSize: 10
-                          ),)
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 30,),
-
+             
                     Container(
                       padding: EdgeInsets.only(left: 10, right: 10),
                       width: MediaQuery.of(context).size.width,
@@ -265,7 +239,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
                            child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
                            }, icon: Icon(Icons.alarm),),
                           ),
                         ],
@@ -298,7 +272,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
                            child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
                            }, icon: Icon(Icons.alarm),),
                           ),
                         ],
@@ -331,7 +305,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
                            child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
                            }, icon: Icon(Icons.alarm),),
                           ),
                         ],
@@ -364,18 +338,52 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
                            child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
                            }, icon: Icon(Icons.alarm),),
                           ),
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 5,),
-
                   ],
                 ),
               ),
+
+              SizedBox(height: 10,),
+
+              Container(
+                padding: EdgeInsets.all(10),
+                // height: MediaQuery.of(context).size.height/5,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10)
+                ),
+                child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.grey),
+                              Text(' Reminder! ', style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.grey
+                              ),),
+                            ],
+                          ),
+
+                          SizedBox(height: 10,),
+
+                          Text('Tidak ada shalat yang paling berat dilakukan oleh orang munafik kecuali shalat Shubuh dan shalat Isya. [HR. Bukhari no. 657 dan Muslim no. 651]',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10
+                          ),)
+                        ],
+                      ),
+                    ),
+              )
             ],
           ),
         ) : SizedBox(

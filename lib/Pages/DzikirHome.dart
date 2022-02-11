@@ -20,6 +20,7 @@ class _DzikirPageState extends State<DzikirPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'ISTIGHFAR',
           style: TextStyle(
@@ -27,7 +28,6 @@ class _DzikirPageState extends State<DzikirPage> {
         ),
         elevation: 0.0,
         backgroundColor: Color(0xff2EB086),
-        //leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu), color: Color(0xff2EB086),),
         actions: [
           TextButton(
               onPressed: () async {
@@ -61,7 +61,7 @@ class _DzikirPageState extends State<DzikirPage> {
                 'أَسْتَغْفِرُ اللهَ الْعَظِـيْمِ الَّذِيْ لَااِلَهَ اِلَّا هُوَ الْحَيُّ الْقَيُّوْمُ وَأَتُوْبُ إِلَيْهِ',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Misbah',
                 ),
                 textAlign: TextAlign.center,
               ),
