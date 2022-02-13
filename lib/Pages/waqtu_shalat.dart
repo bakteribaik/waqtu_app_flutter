@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -29,8 +30,12 @@ class _WaqtuHomeState extends State<WaqtuHome> {
 
   bool isFetch = false;
 
-  String location = '';
   String Address = '';
+
+  String long = '';
+  String lat = '';
+
+  bool sended = false;
 
   Future<Position> _getGeoLocationPosition() async {
     bool serviceEnabled;
@@ -58,12 +63,14 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   Future<void> GetAddressFromLatLong(Position position)async {
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
-    Address = '${place.subLocality}';
+    Address = place.subAdministrativeArea.toString();
+    long = position.longitude.toString();
+    lat = position.latitude.toString();
     setState((){});
   }
 
   _getData () async {
-    sholat = await dataService.fetchData('jakarta', dateInput);
+    sholat = await dataService.fetchData(long, lat, dateInput);
     isFetch = true;
     setState(() {});
   }
@@ -94,6 +101,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   //sholat.results!.datetime![0].times!.dhuhr.toString() manggil waktu sholat
   //sholat.results!.location!.city.toString() kota
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,12 +110,12 @@ class _WaqtuHomeState extends State<WaqtuHome> {
         backgroundColor: Colors.transparent,
         centerTitle: true,
         elevation: 0.0,
-        title: Text('WAQTU SHALAT', style: TextStyle(
+        title: isFetch ? Text(sholat.results!.datetime![0].date!.hijri! + ' Hijriah', style: TextStyle(
           color: Color(0xff2EB086),
           fontWeight: FontWeight.bold,
           fontSize: 16,
           fontFamily: 'Poppins'
-        )),
+        )) : Text('Loading...'),
       ),
 
       body: SafeArea(
@@ -126,7 +134,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                    Container(
                      child: Row(
                        children: [
-                          Text(Address + ' dan sekitarnya',style: TextStyle( // Nama kota
+                          Text(Address,style: TextStyle( // Nama kota
                             color: Colors.grey
                           ),),
 
@@ -138,7 +146,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                               color: Colors.redAccent,
                               borderRadius: BorderRadius.circular(10)
                             ),
-                            child: Text('realtime', style: TextStyle(
+                            child: Text('Mazhab: ' + sholat.results!.settings!.juristic!, style: TextStyle(
                               fontSize: 10,
                               color: Colors.white
                             ),),
@@ -180,6 +188,39 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                 ),
                 child: Column(
                   children: [
+
+                    Container(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                           width: MediaQuery.of(context).size.width/2.8,
+                           child: Text('Imsak', style: TextStyle(fontSize: 14),),
+                          ),
+                           Container(
+                           width: MediaQuery.of(context).size.width/4,
+                           child: Text('± ' + sholat.results!.datetime![0].times!.imsak.toString(), style: TextStyle(
+                             fontWeight: FontWeight.bold,
+                             fontSize: 17,
+                             color: Color(0xff2EB086)
+                           ),),
+                          ),
+                           Container(
+                           width: MediaQuery.of(context).size.width/5.5,
+                           child: IconButton(onPressed: (){
+                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                           }, icon: Icon(Icons.alarm),),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 5,),
              
                     Container(
                       padding: EdgeInsets.only(left: 10, right: 10),
@@ -192,7 +233,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                         children: [
                           Container(
                            width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Subuh', style: TextStyle(fontSize: 14),),
+                           child: Text('Fajar', style: TextStyle(fontSize: 14),),
                           ),
                            Container(
                            width: MediaQuery.of(context).size.width/4,
@@ -205,7 +246,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                            Container(
                            width: MediaQuery.of(context).size.width/5.5,
                            child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
+                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
                            }, icon: Icon(Icons.alarm),),
                           ),
                         ],

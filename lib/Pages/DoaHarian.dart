@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waqtuu/Models/doa_models.dart';
+import 'package:waqtuu/Pages/DoaPages/DoaPages.dart';
 import 'package:waqtuu/Service/doa_service.dart';
 
 class DoaHarianPages extends StatefulWidget {
@@ -16,9 +17,10 @@ class _DoaHarianPagesState extends State<DoaHarianPages> {
 
   bool isFetch = false;
 
+  int id = 0;
+
   _getData() async {
     data = await doaService.getDoa();
-    print(data.doa![1].judul);
     setState(() {});
     isFetch = true;
   }
@@ -32,7 +34,38 @@ class _DoaHarianPagesState extends State<DoaHarianPages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isFetch ? Text('${data.doa![0].judul}') : SizedBox(),
+      appBar: AppBar(
+        backgroundColor: Color(0xff2EB086),
+        title: Text('Doa Sehari Hari'),
+      ),
+      body: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: GridView.count(
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 5,
+            crossAxisCount: 2,
+            children : List.generate(isFetch ? data.doa!.length : 0, (index){
+                return InkWell(
+                  onTap: () => {
+                    Navigator.push(context, 
+                    MaterialPageRoute(builder: (context) => DoaPages(
+                      id : data.doa![index].id!
+                    )))
+                  },
+                  child: Container(
+                  padding: EdgeInsets.all(10),
+                  color: Color(0xff2EB086),
+                  child: Center(child: isFetch ? Text(data.doa![index].judul.toString(), textAlign: TextAlign.center, style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white
+                  ),) : SizedBox(),),
+                ),
+                );
+            })
+          )
+        ),
+      )
     );
   }
 }

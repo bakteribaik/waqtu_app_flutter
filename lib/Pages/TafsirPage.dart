@@ -48,10 +48,22 @@ class _TafsirPagesState extends State<TafsirPages> {
            Center(
              child: Container(
                padding: EdgeInsets.all(10),
-               child: SingleChildScrollView(
-             scrollDirection: Axis.vertical,
-             child: Text('${quran.data![widget.SurahNumber - 1].verses![widget.ayatNumber - 1].tafsir!.id!.long}'),
-             ),
+               child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Text('${quran.data![widget.SurahNumber - 1].verses![widget.ayatNumber - 1].tafsir!.id!.long}',
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
+                        color: Colors.black54
+                      ),
+                      ),
+                      ),
+                ),
              )) : SizedBox(),
     );
   }

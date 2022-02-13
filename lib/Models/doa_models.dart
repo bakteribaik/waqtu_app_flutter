@@ -22,22 +22,17 @@ class DoaModel {
 }
 
 class Doa {
+  int? id;
   String? judul;
   String? arab;
   String? latin;
   String? arti;
   String? footnote;
 
-  Doa(
-      {
-      this.judul,
-      this.arab,
-      this.latin,
-      this.arti,
-      this.footnote,
-      });
+  Doa({this.id, this.judul, this.arab, this.latin, this.arti, this.footnote});
 
   Doa.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     judul = json['judul'];
     arab = json['arab'];
     latin = json['latin'];
@@ -47,6 +42,7 @@ class Doa {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
     data['judul'] = this.judul;
     data['arab'] = this.arab;
     data['latin'] = this.latin;
