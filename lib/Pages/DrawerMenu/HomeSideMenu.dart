@@ -1,14 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:waqtuu/Pages/LoginPages/Login_Home.dart';
-import 'package:waqtuu/Service/google_sign_in.dart';
-import 'package:marquee/marquee.dart';
 
 class HomeSideMenuPage extends StatefulWidget {
   const HomeSideMenuPage({ Key? key }) : super(key: key);

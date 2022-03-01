@@ -1,11 +1,5 @@
 import 'dart:async';
-
-import 'package:audioplayers/audioplayers.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +8,7 @@ import 'package:waqtuu/Service/service_data.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:waqtuu/ad_helper.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+
 
 
 class WaqtuHome extends StatefulWidget {

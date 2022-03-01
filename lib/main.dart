@@ -1,29 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:waqtuu/Models/waqtu_model.dart';
-import 'package:waqtuu/Pages/LoginPages/Login_Home.dart';
-import 'package:waqtuu/Pages/Router/router.dart';
 import 'package:waqtuu/Pages/home_menu.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:waqtuu/Service/google_sign_in.dart';
-import 'package:waqtuu/Service/service_data.dart';
-
-//Firebase
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
-//ALARM MANAGER
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-
-
-
 
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel( //Flutter_Local_Notification
@@ -45,10 +29,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message)async{
 }
 
 Future<void> main() async {
-  //Alarm manager initialization
-  WidgetsFlutterBinding.ensureInitialized();
-  await AndroidAlarmManager.initialize();
-  //////////////////////////////
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

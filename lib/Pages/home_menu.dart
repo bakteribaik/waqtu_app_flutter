@@ -1,27 +1,20 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:waqtuu/Models/hij_models.dart';
-import 'package:waqtuu/Models/waqtu_model.dart';
 import 'package:waqtuu/Pages/Counter_page.dart';
 import 'package:waqtuu/Pages/DoaHarian.dart';
 import 'package:waqtuu/Pages/DrawerMenu/HomeSideMenu.dart';
 import 'package:waqtuu/Pages/DzikirHome.dart';
-import 'package:waqtuu/Pages/PublicChat/publicChat_home.dart';
 import 'package:waqtuu/Pages/Router/router.dart';
 import 'package:waqtuu/Pages/asma_pages.dart';
 import 'package:waqtuu/Pages/waqtu_listSurah.dart';
