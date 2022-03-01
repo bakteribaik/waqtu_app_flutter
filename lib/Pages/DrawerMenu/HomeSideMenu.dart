@@ -1,7 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:waqtuu/Pages/LoginPages/Login_Home.dart';
+import 'package:waqtuu/Service/google_sign_in.dart';
+import 'package:marquee/marquee.dart';
 
 class HomeSideMenuPage extends StatefulWidget {
   const HomeSideMenuPage({ Key? key }) : super(key: key);
@@ -11,10 +18,15 @@ class HomeSideMenuPage extends StatefulWidget {
 }
 
 class _HomeSideMenuPageState extends State<HomeSideMenuPage> {
+    ScrollController _scrollController = ScrollController();
+    int speedFactor = 20;
+    bool scroll = true;
 
   String version = '';
 
   bool isFetch = false;
+
+  String namanama = 'THANKS TO\n\nAllah S.W.T\nSutanlab\nwaktusholat.org\n\nContributor:\n\nDimas Agung Pratama\nDedy Priyatna\nDewi Yulianti\nIkhsanul Dzikri\nPandu Wicaksana\ndan masih banyak yang lainnya';
 
   _getData() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -22,6 +34,8 @@ class _HomeSideMenuPageState extends State<HomeSideMenuPage> {
     isFetch = true;
     setState(() {});
   }
+
+  
 
   @override
   void initState() {
@@ -44,66 +58,90 @@ class _HomeSideMenuPageState extends State<HomeSideMenuPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('WAQTU', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),),
-              Text('application info', style: TextStyle(color: Colors.white, fontSize: 13),),
+              Container(
+                height: 60,
+                width: 60,
+                child: Image(image: AssetImage('assets/images/icon.png')),
+              ),
+              Text("WAQTU: Qur'an Digital", style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),),
+              Text('Application Info', style: TextStyle(color: Colors.white, fontSize: 13),),
 
               SizedBox(height: 30,),
+              Container(
+                padding: EdgeInsets.all(10),
+                height: 125,
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  controller:_scrollController,
+                  child: Text(namanama, textAlign: TextAlign.center, style: TextStyle(color: Colors.white),),
+                ),
+              ),
+              SizedBox(height: 50,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Publish Authority: @vive.vio on > ', style: TextStyle(fontSize: 10, color: Colors.white),),
+                  InkWell(
+                    onTap: () async{
+                      await launch('https://instagram.com/vive.vio/');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Colors.pink,
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      padding: EdgeInsets.only(left: 2, right: 2),
+                      child: FaIcon(FontAwesomeIcons.instagram, color: Colors.white, size: 13,),
+                    ),
+                  ),
+                ],
+              ),
 
-              // Container(
-              //   padding: EdgeInsets.only(top: 20, bottom:20, left: 60, right: 60),
-              //   decoration: BoxDecoration(
-              //     color: Color(0xff2EB086),
-              //     borderRadius: BorderRadius.circular(20)
-              //   ),
-              //   child: InkWell(
-              //     onTap: (){
-              //       print('setting');
-              //     },
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.center,
-              //       children: [
-              //         Icon(Icons.settings, color: Colors.white,),
-              //         SizedBox(width: 10,),
-              //         Text('Settings', style: TextStyle(color: Colors.white),)
-              //       ],
-              //     ),
-              //   ),
-              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Build author: @zulfikaralwilubis on > ', style: TextStyle(fontSize: 10, color: Colors.white),),
+                  InkWell(
+                    onTap: () async{
+                      await launch('https://instagram.com/zulfikaralwilubis/');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Colors.pink,
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      padding: EdgeInsets.only(left: 2, right: 2),
+                      child: FaIcon(FontAwesomeIcons.instagram, color: Colors.white, size: 13,),
+                    ),
+                  ),
+                ],
+              ),
 
-              // SizedBox(height: 10,),
-              // Container(
-              //   padding: EdgeInsets.only(top: 20, bottom:20, left: 60, right: 60),
-              //   decoration: BoxDecoration(
-              //     color: Color(0xff2EB086),
-              //     borderRadius: BorderRadius.circular(20)
-              //   ),
-              //   child: InkWell(
-              //     onTap: (){
-              //       print('setting');
-              //     },
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.center,
-              //       children: [
-              //         Icon(Icons.info, color: Colors.white,),
-              //         SizedBox(width: 10,),
-              //         Text('About us', style: TextStyle(color: Colors.white),)
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              Text('Thanks To', style: TextStyle(fontSize: 20, color: Colors.white),),
-              Text("Allah S.W.T\nSutanlab sebagai penyedia API Qur'an\nwaktusholat.org sebagai penyedia API waktu sholat", style: TextStyle(fontSize: 12,color: Colors.white), textAlign: TextAlign.center,),
-              SizedBox(height: 10,),
-
-              Text('Contributors', style: TextStyle(fontSize: 20, color: Colors.white),),
-              Text('Muhammad Rizky Julianto, Dimas Agung Pratama, Ari Setiawan, Dewi Yulianti, Takyudin, Dedy Priyatna, Ikhsanul Dzikri dan masih banyak lagi', style: TextStyle(fontSize: 12,color: Colors.white), textAlign: TextAlign.center,),
-
-              SizedBox(height: 80,),
-              Text('Build Author: @zulfikaralwilubis', style: TextStyle(color: Colors.white54),),
-              isFetch ? Text('Application Version: v${version}', style: TextStyle(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('UI Design by: @mrjulianto on > ', style: TextStyle(fontSize: 10, color: Colors.white),),
+                  InkWell(
+                    onTap: () async{
+                      await launch('https://instagram.com/mrjulianto/');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Colors.pink,
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      padding: EdgeInsets.only(left: 2, right: 2),
+                      child: FaIcon(FontAwesomeIcons.instagram, color: Colors.white, size: 13,),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30,),
+              isFetch ? Text('App Version: v${version}', style: TextStyle(
                 fontSize: 12,
                 color: Colors.white
-              ),) : SizedBox()
+              ),) : SizedBox(),
+              SizedBox(height: 30,),
             ],
           ),
         )

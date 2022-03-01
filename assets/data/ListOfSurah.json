@@ -1,7 +1,4 @@
 {
-    "code": 200,
-    "status": "OK.",
-    "message": "Success fetching all surah.",
     "data": [
         {
             "number": 1,

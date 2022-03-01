@@ -6,46 +6,35 @@ import 'package:url_launcher/url_launcher.dart';
 import '../home_menu.dart';
 
 class AyatKursiPages extends StatefulWidget {
-  const AyatKursiPages({ Key? key }) : super(key: key);
+  final isDarkMode;
+  const AyatKursiPages({ Key? key, required this.isDarkMode }) : super(key: key);
 
   @override
   _AyatKursiPagesState createState() => _AyatKursiPagesState();
 }
 
 class _AyatKursiPagesState extends State<AyatKursiPages> {
+
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
+
   int counter = 0;
   bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: widget.isDarkMode ? BColor : Colors.white,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
-          'Ayat Kursi',
+          'WAQTU Dzikir',
           style: TextStyle(
-              fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
+              fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         elevation: 0.0,
-        backgroundColor: Color(0xff2EB086),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                final url =
-                    'https://wa.me/6283808503597?text=hallo%20admin%20waqtu';
-                if (await canLaunch(url) &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi) {
-                  await launch(url);
-                } else
-                  (Fluttertoast.showToast(msg: 'No Internet Connection'));
-              },
-              child: Text(
-                'Need Help?',
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
+        backgroundColor: widget.isDarkMode ? Colors.transparent : Colors.teal,
       ),
       body: Center(
         child: Column(
@@ -53,7 +42,7 @@ class _AyatKursiPagesState extends State<AyatKursiPages> {
             SizedBox(
               height: 30,
             ),
-            Text('Membaca Ayat Kursi'),
+            Text('Membaca Ayat Kursi', style: TextStyle(color: widget.isDarkMode ?  Colors.white : Colors.black),),
             Container(
               padding: EdgeInsets.all(20),
               child: Text(
@@ -61,14 +50,10 @@ class _AyatKursiPagesState extends State<AyatKursiPages> {
                 style: TextStyle(
                   fontSize: 24,
                   fontFamily: 'Misbah',
+                  color: widget.isDarkMode ? Colors.white : Colors.black
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-
-            Container(
-              padding: EdgeInsets.all(10),
-              child: Text("", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
             ),
 
             SizedBox(height: 5,),
@@ -103,7 +88,7 @@ class _AyatKursiPagesState extends State<AyatKursiPages> {
                     padding: EdgeInsets.only(top: 20, bottom: 20),
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
-                      color: Color(0xff2EB086),
+                      color: Colors.teal,
                       borderRadius: BorderRadius.circular(30)
                     ),
                     child: Text('✓', textAlign: TextAlign.center, style: TextStyle(

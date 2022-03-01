@@ -1,15 +1,34 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:waqtuu/Models/hij_models.dart';
+import 'package:waqtuu/Models/waqtu_model.dart';
+import 'package:waqtuu/Pages/Counter_page.dart';
 import 'package:waqtuu/Pages/DoaHarian.dart';
 import 'package:waqtuu/Pages/DrawerMenu/HomeSideMenu.dart';
 import 'package:waqtuu/Pages/DzikirHome.dart';
+import 'package:waqtuu/Pages/PublicChat/publicChat_home.dart';
+import 'package:waqtuu/Pages/Router/router.dart';
+import 'package:waqtuu/Pages/asma_pages.dart';
 import 'package:waqtuu/Pages/waqtu_listSurah.dart';
 import 'package:waqtuu/Pages/waqtu_shalat.dart';
+import 'package:waqtuu/Service/service_data.dart';
 import 'package:waqtuu/ad_helper.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-
+import 'package:badges/badges.dart';
 
 class homeMenu extends StatefulWidget {
   const homeMenu({ Key? key }) : super(key: key);
@@ -20,214 +39,703 @@ class homeMenu extends StatefulWidget {
 
 class _homeMenuState extends State<homeMenu> {
 
-  late BannerAd _bannerAd;
-  bool _isBannerAdReady = false;
+  final items = <String>[
+    "Demi Allah, tidaklah kehidupan dunia dibandingkan akhirat melainkan hanya seperti salah satu dari kalian mencelupkan tangannya ke dalam lautan, maka silakan dilihat apa yang dibawa oleh jarinya. (HR. Muslim)",
+    "Ketahuilah bahwa kemenangan bersama kesabaran, kelapangan bersama kesempitan, dan kesulitan bersama kemudahan. (HR Tirmidzi)",
+    "Bangunlah pagi hari untuk mencari rezeki dan kebutuhan-kebutuhanmu. Sesungguhnya pada pagi hari terdapat barakah dan keberuntungan. (HR At-Thabrani dan Al-Bazzar)",
+    "Kerjakanlah urusan duniamu seakan-akan kamu hidup selamanya dan laksanakanlah urusan akhiratmu seakan-akan kamu akan mati besok. (HR. Ibnu Asakir)",
+    "Barangsiapa datang kepada tukang ramal kemudian menanyakan sesuatu dan dia mempercayainya, maka tidak diterima salatnya selama empat puluh hari, (HR. Muslim)",
+    "Hijrah adalah meninggalkan hal yang buruk. (HR. Ahmad)",
+    "Sebaik-baik manusia ialah orang yang senantiasa mengingat Allah, dan seburuk-buruk manusia adalah orang yang suka mengadu domba, suka memecah belah antara orang-orang yang saling mengasihi, suka berbuat zalim, suka mencerai-beraikan manusia, dan selalu menimbulkan kesusahan. (HR. Ahmad)"
+  ];  
+  int second = 15;
+  String item = 'Tidaklah suatu kegalauan, kesedihan, kebimbangan, kekalutan yang menimpa seorang mukmin atau bahkan tertusuk duri sekalipun, melainkan karenanya Allah akan menggugurkan dosa-dosanya". (HR Bukhari dan Muslim)';
 
-  bool? internet;
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
 
-  @override
-  void initState() {
+  bool isDarkMode = false;
+  bool onInternet = false;
+  bool getData    = false;
 
-    super.initState();
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          print('banner loaded');
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
-          _isBannerAdReady = false;
-          ad.dispose();
-        },
-      ),
-    );
+  HijService hijService = HijService();
+  HijYear data = HijYear();
 
-    _bannerAd.load();
+  String tanggal = DateFormat("d-MM-yyyy").format(DateTime.now());
+  String _hari = DateFormat("EEEE").format(DateTime.now());
+  String _tanggal = DateFormat("dd").format(DateTime.now());
+  String _bulan = DateFormat("MMMM").format(DateTime.now());
+  String _tahun = DateFormat("yyyy").format(DateTime.now());
+  String hari = '';
+  String bulan = '';
+  String _date = DateFormat("dd MMMM yyyy").format(DateTime.now());
+  String _timeString = '';
+
+  //====================== badge counter =============
+  bool newMessage = false;
+  bool showBadge = false;
+  int index = 0;
+  _messageStream(){
+    if(!this.mounted) return;
+    Stream<QuerySnapshot> _messageStream = FirebaseFirestore.instance.collection('message').snapshots();
+    _messageStream.listen((event) {
+      if (event.docChanges.single.type.name == 'added') {
+          if (this.mounted) {
+            setState(() {
+              index++;
+            });
+          }
+          if(index > 0){
+            if (this.mounted) {
+              setState(() {
+                showBadge = true;
+              });
+            }
+          }else{
+            return;
+          }
+      } else {
+        return;
+      }
+    });
+  }
+      
+
+  //=================================================
+
+  _getTime() {
+    final String formattedDateTime =
+        DateFormat('HH:mm').format(DateTime.now()).toString();
+      if (this.mounted) {
+        setState(() {
+          _timeString = formattedDateTime;
+        });
+      }
+  }
+
+  _getData() async {
+      data = await hijService.fetchData(tanggal);
+      setState(() {
+          onInternet = true;
+      });
+  }
+
+  _internetChecker(){
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
+      if (result != await ConnectivityResult.none) {
+         _getData();
+      }else{
+        setState(() {
+          onInternet = false;
+        });
+      }
+    });
+  }
+
+  Future<bool>_loadPreferences() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('isDarkMode') ?? false;
+  }
+
+  _translateHari(){
+    if (_hari == 'Sunday') {
+      setState(() {
+         hari = 'Minggu';
+      });
+    }else if(_hari == 'Monday'){
+      setState(() {
+         hari = 'Senin';
+      });
+    }else if(_hari == 'Tuesday'){
+      setState(() {
+         hari = 'Selasa';
+      });
+    }else if(_hari == 'Wednesday'){
+      setState(() {
+         hari = 'Rabu';
+      });
+    }else if(_hari == 'Thursday'){
+      setState(() {
+         hari = 'Kamis';
+      });
+    }else if(_hari == 'Friday'){
+      setState(() {
+         hari = "Jum'at";
+      });
+    }else if(_hari == 'Saturday'){
+      setState(() {
+         hari = 'Sabtu';
+      });
+    }
+  }
+
+  _translateBulan(){
+    if (_bulan == 'January') {
+      setState(() {
+        bulan = 'Januari';
+      });
+    }else if(_bulan == 'February'){
+      setState(() {
+        bulan = 'Februari';
+      });
+    }else if(_bulan == 'March'){
+      setState(() {
+        bulan = 'Maret';
+      });
+    }
+    else if(_bulan == 'April'){
+      setState(() {
+        bulan = 'April';
+      });
+    }
+    else if(_bulan == 'May'){
+      setState(() {
+        bulan = 'Mei';
+      });
+    }
+    else if(_bulan == 'June'){
+      setState(() {
+        bulan = 'Juni';
+      });
+    }
+    else if(_bulan == 'July'){
+      setState(() {
+        bulan = 'Juli';
+      });
+    }
+    else if(_bulan == 'August'){
+      setState(() {
+        bulan = 'Agustus';
+      });
+    }
+    else if(_bulan == 'September'){
+      setState(() {
+        bulan = 'September';
+      });
+    }
+    else if(_bulan == 'October'){
+      setState(() {
+        bulan = 'Oktober';
+      });
+    }
+    else if(_bulan == 'November'){
+      setState(() {
+        bulan = 'November';
+      });
+    }
+    else if(_bulan == 'December'){
+      setState(() {
+        bulan = 'Desember';
+      });
+    }
   }
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    _bannerAd.dispose();
-    super.dispose();
-    
+  void initState() {
+    Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
+    Timer.periodic(Duration(seconds: 1), (Timer t) => _internetChecker());
+    _translateHari();
+    _translateBulan();
+    Timer.periodic(Duration(seconds: 15), (_) {
+      item = items[Random().nextInt(items.length)];
+    });
+    _loadPreferences().then((value){
+        isDarkMode = value;
+        print('home: ' + isDarkMode.toString());
+    });
+    _messageStream();
+    super.initState(); 
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: HomeSideMenuPage(),
+      backgroundColor: isDarkMode ? BColor : LColor,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Color(0xff2EB086)),
         centerTitle: true,
-        title: Text('WAQTU', style: TextStyle(fontSize: 24, color: Color(0xff2EB086), fontWeight: FontWeight.bold),),
-        elevation: 0.0,
         backgroundColor: Colors.transparent,
-        // actions: [
-        //   IconButton( onPressed: () async {
-        //       final url = 'https://wa.me/6283808503597?text=hallo%20admin%20waqtu';
-        //       if(await canLaunch(url) && await Connectivity().checkConnectivity() == ConnectivityResult.wifi && await Connectivity().checkConnectivity() == ConnectivityResult.wifi){
-        //         await launch(url);
-        //       }else(
-        //         Fluttertoast.showToast(msg: 'No Internet Connection')
-        //       );
-        //     }, icon: Icon(Icons.headset_mic))
-        // ],
+        elevation: 0,
+        actionsIconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(onPressed: () async {
+              if(isDarkMode == false){
+                SharedPreferences pref = await SharedPreferences.getInstance();
+                setState(() {
+                  isDarkMode = true;
+                });
+                pref.setBool('isDarkMode', isDarkMode);
+              }else{
+                SharedPreferences pref = await SharedPreferences.getInstance();
+                setState(() {
+                  isDarkMode = false;
+                 });
+                pref.setBool('isDarkMode', isDarkMode);
+              }
+          }, icon: isDarkMode ? Icon(Icons.light_mode) : Icon(Icons.dark_mode_outlined)),
+        ],
       ),
       body: SafeArea(
-       child: Container(
-         width: MediaQuery.of(context).size.width,
-         padding: EdgeInsets.all(20),
-         child: Column(
-           crossAxisAlignment: CrossAxisAlignment.center,
-           children: [
-              if(_isBannerAdReady)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    width: _bannerAd.size.width.toDouble(),
-                    height: _bannerAd.size.height.toDouble(),
-                    child: AdWidget(ad: _bannerAd),
-                  ),
-                ),
-              SizedBox(height: 10,),
+        child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                                Container(
+                                  // color: Colors.amber,
+                                  child: Column(
+                                    children: [
+                                      Text("WAQTU : Qur'an Digital", style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.white
+                                      ),
+                                  ),
+                                  Text(_timeString, style: TextStyle(
+                                        fontSize: 60,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white
+                                      ),
+                                  ),
+                                  Text('${hari}, ${_tanggal} ${bulan} ${_tahun}', style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white
+                                      ),
+                                  ),
 
-                   Text("WaQtu is an app for read digital Al Quran \nand known time for dzikir and pray", style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center,),
-        
+                                  onInternet ?
+                                  Text('${data.data!.hijri!.day} ${data.data!.hijri!.month!.en} ${data.data!.hijri!.year} Hijriah', style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white
+                                      ),
+                                  )
+                                  : SizedBox(height: 15,),
+                                    ],
+                                  ),
+                                ),
+                                              
+                                SizedBox(height: 29,),
 
-               SizedBox(height: 30,),
+                                Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.all(20),
+                                    width: double.maxFinite,
+                                    height: MediaQuery.of(context).size.height / 1.5,
+                                    decoration: BoxDecoration(
+                                      color: isDarkMode ? DColor : Colors.white,
+                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(10),
+                                          // color: Colors.amber,
+                                          width: MediaQuery.of(context).size.width,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column( // Menu 1
+                                                children: [
+                                                  InkWell(
+                                                    onTap: (){
+                                                      if(onInternet == false){
+                                                           ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(
+                                                              backgroundColor: Colors.red[300],
+                                                              content: Text('No Internet Connection!', textAlign: TextAlign.center,)
+                                                            )
+                                                          );
+                                                      }else{
+                                                          Navigator.push(context,
+                                                          MaterialPageRoute(builder: (context) => WaqtuHome(isDarkMode: isDarkMode)));
+                                                      }
+                                                    },
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        children: [
+                                                          Container(
+                                                              padding: EdgeInsets.all(8),
+                                                            width: 50,
+                                                            height: 50,
+                                                            decoration: BoxDecoration(
+                                                              color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                              borderRadius: BorderRadius.circular(10),
+                                                              border: Border.all(color: Colors.white, width: 2),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors.grey,
+                                                                  offset: Offset(1,1),
+                                                                  blurRadius: 5
+                                                                )
+                                                              ]
+                                                            ),
+                                                            child: Center(
+                                                              child: SvgPicture.asset('assets/svg/sujud.svg', color: Colors.white, fit: BoxFit.contain,),
+                                                            ),
+                                                          ),
 
-             Container(
-               height: MediaQuery.of(context).size.height/1.6,
-               width: MediaQuery.of(context).size.width,
-               decoration: BoxDecoration(
-                //color: Colors.red
-               ),
-               child: Column(
-                 children: [
-                   Container(
-                     child: Column(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                       children: [
-                         InkWell(
-                           onTap: () async {
-                             if( await Connectivity().checkConnectivity() == ConnectivityResult.wifi || await Connectivity().checkConnectivity() == ConnectivityResult.mobile){
-                                Navigator.push(context, 
-                                MaterialPageRoute(builder: (context) => const WaqtuHome()));
-                             }else{
-                               Fluttertoast.showToast(msg: 'No internet Connection', backgroundColor: Color(0xffB8045E), textColor: Colors.white,);
-                             }
-                           },
-                           child:  Container(
-                             width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xffCDB699),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.timer, color: Colors.white,  size: 40,),
-                                  SizedBox(height: 10,),
-                                  Text('Waqtu Shalat', style: TextStyle(color: Colors.white),),
-                                ],
-                              ),
-                          ),
-                         ),
+                                                          // Positioned(
+                                                          //   top: -5,
+                                                          //   right: -10,
+                                                          //   child: Container(
+                                                          //     decoration: BoxDecoration(
+                                                          //       color: Colors.red,
+                                                          //       borderRadius: BorderRadius.circular(5)
+                                                          //     ),
+                                      
+                                                          //     padding: EdgeInsets.only(top: 1, bottom: 2, left: 3, right: 3),
+                                                          //     child: Text('iklan', style: TextStyle(fontSize: 9, color: Colors.white),),
+                                                          //   )
+                                                          // )
+                                                        ],
+                                                      )
+                                                  ),
+                                                  Text('Sholat', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                  SizedBox(height: 10,),
+                                                InkWell(
+                                                    onTap: (){
+                                                      Navigator.push(context,
+                                                      MaterialPageRoute(builder: (context) => CounterPage(
+                                                        isDarkMode : isDarkMode
+                                                      )));
+                                                    },
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(8),
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: SvgPicture.asset('assets/svg/counter.svg', color: Colors.white,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('Counter', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                ],
+                                              ),
 
-                          SizedBox(height: 10,),
+                                              Column( // Menu 2
+                                                children: [
+                                                  InkWell(
+                                                    onTap: (){
+                                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ListSurahPage(
+                                                        isDarkMode : isDarkMode
+                                                      )));
+                                                    },
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(8),
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: SvgPicture.asset('assets/svg/quran.svg', color: Colors.white, fit: BoxFit.contain,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text("Qur'an", style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                  SizedBox(height: 10,),
+                                                InkWell(
+                                                    onTap: (){
+                                                      Navigator.push(context,
+                                                      MaterialPageRoute(builder: (context) => AsmaPages(
+                                                        isDarkMode : isDarkMode
+                                                      )));
+                                                    },
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(10),
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: SvgPicture.asset('assets/svg/allah.svg', color: Colors.white, fit: BoxFit.contain,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('Asmaul', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                ],
+                                              ),
 
-                         InkWell(
-                           onTap: (){
-                              Navigator.push(context, 
-                             MaterialPageRoute(builder: (context) => const ListSurahPage()));
-                           },
-                           child:  Container(
-                             width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xff2EB086),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.menu_book, color: Colors.white, size: 40,),
-                                  SizedBox(height: 10,),
-                                  Text("Waqtu Al'Quran", style: TextStyle(color: Colors.white),),
-                                ],
-                              ),
-                          ),
-                         ),
-                         
-                          SizedBox(height: 10,),
+                                              Column( // Menu 3
+                                                children: [
+                                                  InkWell(
+                                                    onTap: (){
+                                                      Navigator.push(context,
+                                                      MaterialPageRoute(builder: (context) => DoaHarianPages(
+                                                        isDarkMode : isDarkMode
+                                                      )));
+                                                    },
+                                                      child: Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: FaIcon(FontAwesomeIcons.prayingHands, color: Colors.white,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text("Do'a", style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                  SizedBox(height: 10,),
+                                                InkWell(
+                                                    onTap: (){
+                                                      launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*');
+                                                    },
+                                                      child: Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 30,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('Masukan', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                ],
+                                              ),
 
-                         InkWell(
-                           onTap: (){
-                              Navigator.push(context, 
-                             MaterialPageRoute(builder: (context) => const DzikirPage()));
-                           },
-                           child:  Container(
-                             width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xff298A9E),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.dashboard_customize_outlined,color: Colors.white, size: 40,),
-                                  SizedBox(height: 10,),
-                                  Text("Waqtu Dzikir", style: TextStyle(color: Colors.white),),
-                                ],
-                              ),
-                          ),
-                         ),
+                                              Column( // Menu 4
+                                                children: [
+                                                  InkWell(
+                                                    onTap: (){
+                                                      Navigator.push(context,
+                                                      MaterialPageRoute(builder: (context) => DzikirPage(
+                                                        isDarkMode : isDarkMode
+                                                      )));
+                                                    },
+                                                      child: Container(
+                                                      padding: EdgeInsets.all(7),
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: SvgPicture.asset('assets/svg/tasbih.svg', color: Colors.white,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('Dzikir', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                  SizedBox(height: 10,),
+                                                InkWell(
+                                                    onTap: (){
+                                                      Fluttertoast.showToast(msg: 'Coming Soon', textColor: Colors.white, backgroundColor: Colors.teal);
+                                                    },
+                                                      child: Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        border: Border.all(color: Colors.white, width: 2),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.grey,
+                                                            offset: Offset(1,1),
+                                                            blurRadius: 5
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Center(
+                                                        child: FaIcon(FontAwesomeIcons.gripHorizontal, color: Colors.white,),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('More', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                ],
+                                              ),
+                                            ],
+                                          )
+                                        ),
 
-                          SizedBox(height: 10,),
+                                        Container(
+                                          padding: EdgeInsets.only(left: 20, right: 10),
+                                          child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Kumpulan Hadist', style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17,
+                                              color: Colors.grey
+                                            ),
+                                            textAlign: TextAlign.left,),
 
-                         InkWell(
-                           highlightColor: Colors.amber,
-                           borderRadius: BorderRadius.circular(10),
-                           splashColor: Colors.amber,
-                           enableFeedback: true,
-                           onTap: (){
-                            //  Fluttertoast.showToast(msg: 'Doa harian is Coming Soon');
-                                  Navigator.push(context, 
-                                MaterialPageRoute(builder: (context) => const DoaHarianPages()));
-                           },
-                           child:  Container(
-                             width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(top: 20, bottom: 20, left: 30, right: 30),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xff313552),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.favorite,color: Colors.white, size: 40,),
-                                  SizedBox(height: 10,),
-                                  Text("Doa Doa Harian", style: TextStyle(color: Colors.white),),
-                                ],
-                              ),
-                          ),
-                         ),
-                       ],
-                     ),
-                   ),
-                 ],
-               ),
+                                            TextButton(
+                                              onPressed: (){
+                                                Fluttertoast.showToast(msg: 'Coming Soon', textColor: Colors.white, backgroundColor: Colors.teal);
+                                              }, child: Text('Lihat Semua >', style: TextStyle(
+                                                color: Colors.grey
+                                              ),))
+                                          ],
+                                        ),
+                                        ),
+                    
+                                        Expanded(
+                                          child: Container(
+                                          width: MediaQuery.of(context).size.width,
+                                          padding: EdgeInsets.only(left: 10, right: 10),
+                                          child: Container(
+                                            height: MediaQuery.of(context).size.height,
+                                            padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: isDarkMode ? Color(0xff395B64) : Colors.white,
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(color: Colors.grey, width: 1),
+                                              ),
+                                              child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text('Hadist Of The Day', style: TextStyle(color: isDarkMode ? Colors.white : Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),),
+                                                      //Text('(updates in $second)', style: TextStyle(color: isDarkMode ? Colors.white : Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),),
+                                                    ],
+                                                  ),
+                                                  Divider(thickness: 1,),
+                                                  Text(item, style: TextStyle(color: isDarkMode ? Colors.white : Colors.grey, fontSize: 12), textAlign: TextAlign.justify,)
+                                                ],
+                                              ),
+                                          )
+                                        ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                            
+                            ],
+                          )
              ),
-           ],
-         ),
-       ),
-      )
-      
-    );
-  }
+          bottomNavigationBar: Container(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            color: isDarkMode ? DColor : Colors.white,
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // InkWell(
+              //   onTap: (){
+              //     launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*,%20saya%20ada%20masukan%20nih');
+              //   },
+              //   child: Container(
+              //   height: 55,
+              //   //color: Colors.amber,
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Icon(Icons.move_to_inbox_outlined, color: isDarkMode ? Colors.white :  Colors.teal),
+              //       Text('Masukan', style: TextStyle(
+              //         fontSize: 10,
+              //         color: isDarkMode ? Colors.white :  Colors.teal
+              //       ),)
+              //     ],
+              //   ),
+              // ),
+              // ),
+
+               InkWell(
+                onTap: (){
+                  if (onInternet == true) {
+                    setState(() {
+                      showBadge = false;
+                      index = 0;
+                    });
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => RouterPages(
+                        isDarkMode : isDarkMode
+                      )));
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Colors.red[300],
+                        content: Text('No Internet Connection!', textAlign: TextAlign.center,)
+                      )
+                    );
+                  }
+                },
+                child: Container(
+                height: 55,
+                //color: Colors.amber,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Badge(
+                      elevation: 1,
+                      badgeContent: Text('${index}', style: TextStyle(color: Colors.white, fontSize: 10),),
+                      toAnimate: false,
+                      showBadge: showBadge,
+                      child: Icon(Icons.chat_outlined, color: isDarkMode ? Colors.white :  Colors.teal),
+                    ),
+                    Text('Public Chat', style: TextStyle(
+                      fontSize: 10,
+                      color: isDarkMode ? Colors.white :  Colors.teal
+                    ),)
+                  ],
+                ),
+              ),
+              ),
+            ],
+          ),
+          )
+        );
+    }
 }

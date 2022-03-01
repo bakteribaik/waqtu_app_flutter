@@ -1,17 +1,26 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:waqtuu/Models/waqtu_model.dart';
 import 'package:waqtuu/Service/service_data.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:waqtuu/ad_helper.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 
 class WaqtuHome extends StatefulWidget {
-  const WaqtuHome({ Key? key }) : super(key: key);
+
+  final bool isDarkMode;
+  const WaqtuHome({ Key? key, required this.isDarkMode }) : super(key: key);
 
   @override
   _WaqtuHomeState createState() => _WaqtuHomeState();
@@ -19,9 +28,13 @@ class WaqtuHome extends StatefulWidget {
 
 class _WaqtuHomeState extends State<WaqtuHome> {
 
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
+
   String _timeString = '';
 
-  String date = DateFormat("d MMM yyyy").format(DateTime.now());
+  String date = DateFormat("EEEE, d MMMM yyyy").format(DateTime.now());
   String time = DateFormat("HH:mm").format(DateTime.now());
   String dateInput = DateFormat("yyyy-MM-dd").format(DateTime.now());
 
@@ -29,13 +42,16 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   Sholat sholat = Sholat();
 
   bool isFetch = false;
+  bool subuh  = false;
+  bool dzuhur  = false;
+  bool ashar  = false;
+  bool maghrib  = false;
+  bool isya  = false;
 
   String Address = '';
 
   String long = '';
   String lat = '';
-
-  bool sended = false;
 
   Future<Position> _getGeoLocationPosition() async {
     bool serviceEnabled;
@@ -66,7 +82,6 @@ class _WaqtuHomeState extends State<WaqtuHome> {
     Address = place.subAdministrativeArea.toString();
     long = position.longitude.toString();
     lat = position.latitude.toString();
-    setState((){});
   }
 
   _getData () async {
@@ -90,349 +105,357 @@ class _WaqtuHomeState extends State<WaqtuHome> {
     GetAddressFromLatLong(position);
   }
 
+  Future<bool>_loadSubuh() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('subuh') ?? false;
+  }
+
+  Future<bool>_loadDzuhur() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('dzuhur') ?? false;
+  }
+
+  Future<bool>_loadAshar() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('ashar') ?? false;
+  }
+
+  Future<bool>_loadMagrib() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('maghrib') ?? false;
+  }
+
+  Future<bool>_loadIsya() async {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      return pref.getBool('isya') ?? false;
+  }
+
   @override
   void initState() {
     super.initState();
     _getLocation();
     _getData();
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
+    _loadSubuh().then((value){
+      subuh = value;
+    });
+    _loadDzuhur().then((value){
+      dzuhur = value;
+    });
+    _loadAshar().then((value){
+      ashar = value;
+    });
+    _loadMagrib().then((value){
+      maghrib = value;
+    });
+    _loadIsya().then((value){
+      isya = value;
+    });
   }
 
   //sholat.results!.datetime![0].times!.dhuhr.toString() manggil waktu sholat
   //sholat.results!.location!.city.toString() kota
+  //sholat.results!.settings!.juristic! mashab
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: widget.isDarkMode ? BColor : LColor,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Color(0xff2EB086)),
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         centerTitle: true,
         elevation: 0.0,
-        title: isFetch ? Text(sholat.results!.datetime![0].date!.hijri! + ' Hijriah', style: TextStyle(
-          color: Color(0xff2EB086),
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-          fontFamily: 'Poppins'
-        )) : Text('Loading...'),
+        actions: [
+          TextButton(onPressed: (){launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*');}, child: Text('need help?', style: TextStyle(color: Colors.white, fontSize: 12),))
+        ],
       ),
 
       body: SafeArea(
-        child: isFetch ? Container(
-          padding: EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          // color: Colors.red,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
             children: [
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                   Container(
-                     child: Row(
-                       children: [
-                          Text(Address,style: TextStyle( // Nama kota
-                            color: Colors.grey
-                          ),),
 
-                          SizedBox(width: 5,),
-
-                          Container(
-                            padding: EdgeInsets.only(top: 3, bottom: 3, left: 5, right: 5),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              borderRadius: BorderRadius.circular(10)
-                            ),
-                            child: Text('Mazhab: ' + sholat.results!.settings!.juristic!, style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white
-                            ),),
-                          )
-                       ],
-                     ),
-                   ),
-                    
-                    Container(
-                      child: Row(
-                        children: [
-                          Text(date, style: TextStyle( // TANGGAL
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25
-                          ),),
-
-                          SizedBox(width: 7,),
-
-                          Text(_timeString, style: TextStyle( // JAM
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                          textAlign: TextAlign.end,)
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ), // end of container waktu
-
-              SizedBox(height: 20,),
-
-              Container(
-                padding: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Color(0xff2EB086),
-                  borderRadius: BorderRadius.circular(10)
-                ),
-                child: Column(
-                  children: [
-
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Imsak', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.imsak.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Comming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 5,),
-             
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Fajar', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.fajr.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 5,),
-
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Dzuhur', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.dhuhr.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                             
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 5,),
-
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Ashar', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.asr.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 5,),
-
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Maghrib', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.maghrib.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 5,),
-
-                    Container(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                           width: MediaQuery.of(context).size.width/2.8,
-                           child: Text('Isya', style: TextStyle(fontSize: 14),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/4,
-                           child: Text('± ' + sholat.results!.datetime![0].times!.isha.toString(), style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 17,
-                             color: Color(0xff2EB086)
-                           ),),
-                          ),
-                           Container(
-                           width: MediaQuery.of(context).size.width/5.5,
-                           child: IconButton(onPressed: (){
-                             Fluttertoast.showToast(msg: 'Coming Soon', backgroundColor: Color(0xff2EB086), textColor: Colors.white);
-                           }, icon: Icon(Icons.alarm),),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
+              // Text(date, style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),),
+              Text(_timeString,  style: TextStyle(color: Colors.white, fontSize: 80, fontWeight: FontWeight.bold),),
+              Text(Address,  style: TextStyle(color: Colors.white),),
               SizedBox(height: 10,),
 
               Container(
-                padding: EdgeInsets.all(10),
-                // height: MediaQuery.of(context).size.height/5,
+                width: 150,
+                padding: EdgeInsets.only(top: 2, bottom: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10)
+                  color: isFetch ? Colors.green : Colors.red,
+                  borderRadius: BorderRadius.circular(20)
                 ),
+                child: Center(child: isFetch ? Text('Zona Waktu: ${sholat.results!.location!.timezone}', style: TextStyle(fontSize: 10, color: Colors.white),) : Text('loading..', style: TextStyle(fontSize: 10, color: Colors.white),) ,),
+              ),
+
+              SizedBox(height: 30,),
+              Expanded(
                 child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                  decoration: BoxDecoration(
+                      color: widget.isDarkMode ? DColor : Colors.white,
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+                  ),
+                  width: MediaQuery.of(context).size.width,
+                  child: isFetch ? Container(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 10,),
+
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Icon(Icons.info_outline, color: Colors.grey),
-                              Text(' Reminder! ', style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.grey
-                              ),),
+                              Text('Subuh           '),
+                              Text('± ${sholat.results!.datetime![0].times!.fajr}'),
+                              IconButton(onPressed: () async{
+                                
+                                if (subuh == false){
+                                  setState((){
+                                    subuh = true;                        
+                                  });
+
+                                  // String jam = sholat.results!.datetime![0].times!.fajr!;
+                                  // final idx = jam.split(':');
+                                  // DateTime now = new DateTime.now();
+                                  // AndroidAlarmManager.oneShotAt(DateTime(now.year, now.month, now.day,  int.parse(idx[0]), 15), 1, _subuhExecute, alarmClock: true, exact: true, wakeup: true, rescheduleOnReboot: true);
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('subuh', subuh);
+                                }else{
+                                  setState((){
+                                    subuh = false;
+                                  });
+                                  //AndroidAlarmManager.cancel(1);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('subuh', subuh);
+                                }
+                              }, icon: subuh ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
                             ],
                           ),
+                        ),
 
-                          SizedBox(height: 10,),
+                        SizedBox(height: 5,),
 
-                          Text('Tidak ada shalat yang paling berat dilakukan oleh orang munafik kecuali shalat Shubuh dan shalat Isya. [HR. Bukhari no. 657 dan Muslim no. 651]',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10
-                          ),)
-                        ],
-                      ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Dzuhur         '),
+                              Text('± ${sholat.results!.datetime![0].times!.dhuhr}'),
+                              IconButton(onPressed: ()async{
+                                if (dzuhur == false) {
+                                  setState(() {
+                                    dzuhur = true;
+                                  });
+
+                                  // String jam = sholat.results!.datetime![0].times!.dhuhr!;
+                                  // final idx = jam.split(':');
+                                  // DateTime now = new DateTime.now();
+                                  // AndroidAlarmManager.oneShotAt(DateTime(now.year, now.month, now.day,  int.parse(idx[0]), int.parse(idx[1])), 2, _dzuhurExecute, alarmClock: true,exact: true, wakeup: true, rescheduleOnReboot: true);
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('dzuhur', dzuhur);
+                                } else {
+                                  setState(() {
+                                    dzuhur = false;
+                                  });
+                                  //AndroidAlarmManager.cancel(2);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('dzuhur', dzuhur);
+                                }
+                              }, icon: dzuhur ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
+
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Ashar           '),
+                              Text('± ${sholat.results!.datetime![0].times!.asr}'),
+                              IconButton(onPressed: ()async{
+                                if (ashar == false) {
+                                  setState(() {
+                                    ashar = true;
+                                  });
+
+                                  // String jam = sholat.results!.datetime![0].times!.asr!;
+                                  // final idx = jam.split(':');
+                                  // DateTime now = new DateTime.now();
+                                  // AndroidAlarmManager.oneShotAt(DateTime(now.year, now.month, now.day,  int.parse(idx[0]), 15), 3, _asharExecute, alarmClock: true,exact: true, wakeup: true, rescheduleOnReboot: true);
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('ashar', ashar);
+                                } else {
+                                  setState(() {
+                                    ashar = false;
+                                  });
+                                  // AndroidAlarmManager.cancel(3);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('ashar', ashar);
+                                }
+                              }, icon: ashar ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
+
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Maghrib      '),
+                              Text('± ${sholat.results!.datetime![0].times!.maghrib}'),
+                              IconButton(onPressed: ()async{
+                                if (maghrib == false) {
+                                  setState(() {
+                                    maghrib = true;
+                                  });
+
+                                  // String jam = sholat.results!.datetime![0].times!.maghrib!;
+                                  // final idx = jam.split(':');
+                                  // DateTime now = new DateTime.now();
+                                  // AndroidAlarmManager.oneShotAt(DateTime(now.year, now.month, now.day,  int.parse(idx[0]), 15), 4, _magribExecute, alarmClock: true);
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('maghrib', maghrib);
+                                } else {
+                                  setState(() {
+                                    maghrib = false;
+                                  });
+                                  // AndroidAlarmManager.cancel(4);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('maghrib', maghrib);
+                                }
+                              }, icon: maghrib ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Isya              '),
+                              Text('± ${sholat.results!.datetime![0].times!.isha}'),
+                              IconButton(onPressed: ()async{
+                                if (isya == false) {
+                                  setState(() {
+                                    isya = true;
+                                  });
+
+                                  // String jam = sholat.results!.datetime![0].times!.isha!;
+                                  // final idx = jam.split(':');
+                                  // DateTime now = new DateTime.now();
+                                  // AndroidAlarmManager.oneShotAt(DateTime(now.year, now.month, now.day,  int.parse(idx[0]), int.parse(idx[1])), 5, _isyaExecute, rescheduleOnReboot: true);
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('isya', isya);
+                                } else {
+                                  setState(() {
+                                    isya = false;
+                                  });
+                                  // AndroidAlarmManager.cancel(5);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.setBool('isya', isya);
+                                }
+                              }, icon: isya ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 25,),
+
+                        Flexible(child: Text('Note: untuk fitur alarm dan notifikasi masih dalam masa perkembangan\nuntuk fitur suara adzan belum dapat ditentukan\nkapan perilisannya di adakan', textAlign: TextAlign.center, style: TextStyle(
+                          color: Color.fromARGB(255, 255, 139, 139),
+                          fontSize: 10
+                        ),))
+                      ],
                     ),
+                  ): Center(child: CircularProgressIndicator(),),
+                )
               )
             ],
-          ),
-        ) : SizedBox(
-          child: Center(
-            child: CircularProgressIndicator(color: Color(0xff2EB086),),
-          ),
+          ) 
         ),
-      )
     );
   }
 }
+
+// void  _subuhExecute(){
+//   print('Alarm Subuh EXECUTE');
+//   AudioCache player = AudioCache();
+//   player.play('audio/adzan/adzan_subuh.mp3');
+// }
+
+// void  _dzuhurExecute(){
+//   print('Alarm dzuhur EXECUTE');
+//   AudioCache player = AudioCache();
+//   player.play('audio/adzan/adzan.mp3');
+// }
+
+// void  _asharExecute(){
+//   print('Alarm ashar EXECUTE');
+//   AudioCache player = AudioCache();
+//   player.play('audio/adzan/adzan.mp3');
+// }
+
+// void _magribExecute(){
+//   print('Alarm maghrib EXECUTE');
+//   String time = DateFormat("HH:mm").format(DateTime.now());
+//   Sholat sholat = Sholat();
+//   if (time == sholat.results!.datetime![0].times!.maghrib) {
+//     AudioCache player = AudioCache();
+//     player.play('audio/adzan/adzan.mp3');
+//   }
+// }
+
+// void  _isyaExecute(){
+//   print('Alarm isya EXECUTE');
+//   String time = DateFormat("HH:mm").format(DateTime.now());
+//   Sholat sholat = Sholat();
+//   if (time == sholat.results!.datetime![0].times!.isha) {
+//     print('playing adzan isya');
+//     AudioCache player = AudioCache();
+//     player.play('audio/adzan/adzan.mp3');
+//   }
+// }

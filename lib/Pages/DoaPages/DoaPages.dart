@@ -6,10 +6,12 @@ import 'package:waqtuu/Service/surahoffline_service.dart';
 class DoaPages extends StatefulWidget {
 
   final int id;
+  final bool isDarkMode;
 
   const DoaPages({ 
     Key? key,
-    required this.id
+    required this.id,
+    required this.isDarkMode
     }) : super(key: key);
 
   @override
@@ -37,9 +39,16 @@ class _DoaPagesState extends State<DoaPages> {
   }
   @override
   Widget build(BuildContext context) {
+
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
+
     return Scaffold(
+      backgroundColor: widget.isDarkMode ? BColor : Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xff2EB086),
+        elevation: 0.0,
+        backgroundColor: widget.isDarkMode? Colors.transparent : Colors.teal,
         centerTitle: true,
         title: isFetch ? Text(data.doa![widget.id-1].judul!, style: TextStyle(fontSize: 14),) : Text('Loading...'),
       ),
@@ -55,6 +64,7 @@ class _DoaPagesState extends State<DoaPages> {
               Text(data.doa![widget.id-1].arab!, style: TextStyle(
                 fontSize: 24,
                 fontFamily: 'Misbah',
+                color: widget.isDarkMode ? Colors.white : Colors.black
               ),
               textAlign: TextAlign.center,),
                 SizedBox(height: 20,),

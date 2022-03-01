@@ -7,18 +7,28 @@ import 'package:waqtuu/Pages/DzikirPages/azirnaminannar.dart';
 import 'package:waqtuu/Pages/DzikirPages/lailahillallah.dart';
 
 class DzikirPage extends StatefulWidget {
-  const DzikirPage({Key? key}) : super(key: key);
+
+  final isDarkMode;
+
+  const DzikirPage({Key? key,
+  required this.isDarkMode}) : super(key: key);
 
   @override
   _DzikirPageState createState() => _DzikirPageState();
 }
 
 class _DzikirPageState extends State<DzikirPage> {
+
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
+
   int counter = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: widget.isDarkMode ? BColor : Colors.white,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
@@ -27,26 +37,7 @@ class _DzikirPageState extends State<DzikirPage> {
               fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         elevation: 0.0,
-        backgroundColor: Color(0xff2EB086),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                final url =
-                    'https://wa.me/6283808503597?text=hallo%20admin%20waqtu';
-                if (await canLaunch(url) &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi) {
-                  await launch(url);
-                } else
-                  (Fluttertoast.showToast(msg: 'No Internet Connection'));
-              },
-              child: Text(
-                'Need Help?',
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
+        backgroundColor: widget.isDarkMode? Colors.transparent : Colors.teal,
       ),
       body: Center(
         child: Column(
@@ -54,7 +45,7 @@ class _DzikirPageState extends State<DzikirPage> {
             SizedBox(
               height: 50,
             ),
-            Text('3x Istighfar'),
+            Text('3x Istighfar', style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black),),
             Container(
               padding: EdgeInsets.all(10),
               child: Text(
@@ -62,13 +53,14 @@ class _DzikirPageState extends State<DzikirPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontFamily: 'Misbah',
+                  color: widget.isDarkMode ? Colors.white : Colors.black
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             Text(
               counter.toString(),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50, color: widget.isDarkMode ? Colors.white : Colors.black),
             ),
 
             Container(
@@ -87,7 +79,9 @@ class _DzikirPageState extends State<DzikirPage> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LailahaillahPage()));
+                              builder: (context) => LailahaillahPage(
+                                  isDarkMode: widget.isDarkMode,
+                              )));
                     }setState(() {
                       counter++;
                     });
@@ -96,7 +90,7 @@ class _DzikirPageState extends State<DzikirPage> {
                     padding: EdgeInsets.only(top: 20, bottom: 20),
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
-                      color: Color(0xff2EB086),
+                      color: Colors.teal,
                       borderRadius: BorderRadius.circular(30)
                     ),
                     child: Text('✓', textAlign: TextAlign.center, style: TextStyle(

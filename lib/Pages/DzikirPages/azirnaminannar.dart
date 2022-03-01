@@ -6,45 +6,34 @@ import 'package:waqtuu/Pages/DzikirPages/allahumma.dart';
 import 'package:waqtuu/Pages/home_menu.dart';
 
 class AzirnaPage extends StatefulWidget {
-  const AzirnaPage({ Key? key }) : super(key: key);
+  final bool isDarkMode;
+  const AzirnaPage({ Key? key, required this.isDarkMode }) : super(key: key);
 
   @override
   _AzirnaPageState createState() => _AzirnaPageState();
 }
 
 class _AzirnaPageState extends State<AzirnaPage> {
+
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
+
     int counter = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: widget.isDarkMode ? BColor : Colors.white,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
-          'Dzikir 3',
+          'WAQTU Dzikir',
           style: TextStyle(
-              fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
+              fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         elevation: 0.0,
-        backgroundColor: Color(0xff2EB086),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                final url =
-                    'https://wa.me/6283808503597?text=hallo%20admin%20waqtu';
-                if (await canLaunch(url) &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi &&
-                    await Connectivity().checkConnectivity() ==
-                        ConnectivityResult.wifi) {
-                  await launch(url);
-                } else
-                  (Fluttertoast.showToast(msg: 'No Internet Connection'));
-              },
-              child: Text(
-                'Need Help?',
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
+        backgroundColor: widget.isDarkMode ? Colors.transparent : Colors.teal,
       ),
       body: Center(
         child: Column(
@@ -52,7 +41,7 @@ class _AzirnaPageState extends State<AzirnaPage> {
             SizedBox(
               height: 50,
             ),
-            Text('7x Allahumma ajirni minan-naar'),
+            Text('7x Allahumma ajirni minan-naar', style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black),),
             SizedBox(height: 10,),
             Container(
               padding: EdgeInsets.all(10),
@@ -61,13 +50,14 @@ class _AzirnaPageState extends State<AzirnaPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontFamily: 'Misbah',
+                  color: widget.isDarkMode ? Colors.white : Colors.black
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             Text(
               counter.toString(),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50, color: widget.isDarkMode ? Colors.white : Colors.black),
             ),
 
             Container(
@@ -85,7 +75,9 @@ class _AzirnaPageState extends State<AzirnaPage> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const AllahummaPages()));
+                              builder: (context) => AllahummaPages(
+                                isDarkMode: widget.isDarkMode,
+                              )));
                     }
                     setState(() {
                       counter++;
@@ -95,7 +87,7 @@ class _AzirnaPageState extends State<AzirnaPage> {
                     padding: EdgeInsets.only(top: 20, bottom: 20),
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
-                      color: Color(0xff2EB086),
+                      color: Colors.teal,
                       borderRadius: BorderRadius.circular(30)
                     ),
                     child: Text('✓', textAlign: TextAlign.center, style: TextStyle(
