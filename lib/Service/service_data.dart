@@ -11,7 +11,7 @@ import 'package:waqtuu/Models/waqtu_model.dart';
 class DataService {
   Future<Sholat> fetchData(String long, String lat, String Date) async {
 
-    final url = 'https://api.pray.zone/v2/times/day.json?longitude=106.7162167&latitude=-6.2996323&elevation=333&date=2022-02-12';
+    final url = 'https://api.pray.zone/v2/times/day.json?longitude=$long&latitude=$lat&elevation=333&date=$Date';
 
     try {
       final response = await http.get(Uri.parse(url));

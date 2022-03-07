@@ -80,10 +80,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  Future<InitializationStatus> _initGoogleMobileAds(){
-    return MobileAds.instance.initialize();
-  }
-
   _getPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -112,7 +108,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _getPermission();
-    // _initGoogleMobileAds();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;

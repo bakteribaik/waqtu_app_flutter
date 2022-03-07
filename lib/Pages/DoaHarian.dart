@@ -50,40 +50,30 @@ class _DoaHarianPagesState extends State<DoaHarianPages> {
         title: Text('Doa Sehari Hari', style: TextStyle(fontSize: 15),),
       ),
       body: SafeArea(
-        child: Container(
+        child: isFetch ? Container(
           padding: EdgeInsets.all(10),
-          child: GridView.count(
-            crossAxisSpacing: 5,
-            mainAxisSpacing: 10,
-            crossAxisCount: 2,
-            children : List.generate(isFetch ? data.doa!.length : 0, (index){
-                return InkWell(
-                  onTap: () => {
-                    AudioCache().play('audio/sfx/click_sound.mp3'),
-                    Navigator.push(context, 
-                    MaterialPageRoute(builder: (context) => DoaPages(
-                      isDarkMode : widget.isDarkMode,
-                      id : data.doa![index].id!
-                    )))
-                  },
-                  child: Container(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: widget.isDarkMode? DColor : Colors.white,
-                    ),
-                    child: Center(child: isFetch ? Text(data.doa![index].judul.toString(), textAlign: TextAlign.center, style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: widget.isDarkMode? Colors.white : Colors.teal
-                    ),) : SizedBox(),),
+          child: ListView.builder(
+            itemCount: data.doa!.length,
+            itemBuilder: (context, index){
+              var x = data.doa![index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DoaPages(id: x.id!, isDarkMode: widget.isDarkMode)));
+                },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 5),
+                  padding: EdgeInsets.only(bottom: 30, top: 30, left: 20, right: 20),
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10)
                   ),
-                  )
-                );
+                  child: Text('${x.judul}'),
+                ),
+              );
             })
-          )
-        ),
+        ) : CircularProgressIndicator(),
       )
     );
   }

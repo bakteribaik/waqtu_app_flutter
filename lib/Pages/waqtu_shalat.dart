@@ -7,7 +7,6 @@ import 'package:waqtuu/Models/waqtu_model.dart';
 import 'package:waqtuu/Service/service_data.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:waqtuu/ad_helper.dart';
 
 
 
@@ -73,9 +72,11 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   Future<void> GetAddressFromLatLong(Position position)async {
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
-    Address = place.subAdministrativeArea.toString();
-    long = position.longitude.toString();
-    lat = position.latitude.toString();
+      Address = place.subAdministrativeArea.toString();
+      long = position.longitude.toString();
+      lat = position.latitude.toString();
+    print(Address + long + lat);
+    _getData();
   }
 
   _getData () async {
@@ -128,7 +129,6 @@ class _WaqtuHomeState extends State<WaqtuHome> {
   void initState() {
     super.initState();
     _getLocation();
-    _getData();
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
     _loadSubuh().then((value){
       subuh = value;
@@ -161,9 +161,9 @@ class _WaqtuHomeState extends State<WaqtuHome> {
         backgroundColor: Colors.transparent,
         centerTitle: true,
         elevation: 0.0,
-        actions: [
-          TextButton(onPressed: (){launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*');}, child: Text('need help?', style: TextStyle(color: Colors.white, fontSize: 12),))
-        ],
+        // actions: [
+        //   TextButton(onPressed: (){launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*');}, child: Text('need help?', style: TextStyle(color: Colors.white, fontSize: 12),))
+        // ],
       ),
 
       body: SafeArea(
@@ -182,7 +182,7 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                   color: isFetch ? Colors.green : Colors.red,
                   borderRadius: BorderRadius.circular(20)
                 ),
-                child: Center(child: isFetch ? Text('Zona Waktu: ${sholat.results!.location!.timezone}', style: TextStyle(fontSize: 10, color: Colors.white),) : Text('loading..', style: TextStyle(fontSize: 10, color: Colors.white),) ,),
+                child: Center(child: isFetch ? Text('Zona Waktu: ${sholat.results!.location!.timezone}', style: TextStyle(fontSize: 10, color: Colors.white),) : Text('Membaca Lokasi ...', style: TextStyle(fontSize: 10, color: Colors.white),) ,),
               ),
 
               SizedBox(height: 30,),
@@ -198,6 +198,26 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                     child: Column(
                       children: [
                         SizedBox(height: 10,),
+
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Imsak           '),
+                              Text(' ± ${sholat.results!.datetime![0].times!.imsak}'),
+                              IconButton(onPressed:(){
+                              }, icon: Icon(Icons.notifications_none_outlined, color: Colors.teal[50],))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
 
                         Container(
                           width: MediaQuery.of(context).size.width,
@@ -234,6 +254,26 @@ class _WaqtuHomeState extends State<WaqtuHome> {
                                   prefs.setBool('subuh', subuh);
                                 }
                               }, icon: subuh ? Icon(Icons.notifications_none_outlined, color: Colors.teal,) : Icon(Icons.notifications_off_outlined, color: Colors.grey,))
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
+
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.teal[50],
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('Terbit           '),
+                              Text(' ± ${sholat.results!.datetime![0].times!.sunrise}'),
+                              IconButton(onPressed:(){
+                              }, icon: Icon(Icons.notifications_none_outlined, color: Colors.teal[50],))
                             ],
                           ),
                         ),

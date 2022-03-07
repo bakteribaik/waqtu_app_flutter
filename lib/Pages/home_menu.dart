@@ -15,13 +15,16 @@ import 'package:waqtuu/Pages/Counter_page.dart';
 import 'package:waqtuu/Pages/DoaHarian.dart';
 import 'package:waqtuu/Pages/DrawerMenu/HomeSideMenu.dart';
 import 'package:waqtuu/Pages/DzikirHome.dart';
+import 'package:waqtuu/Pages/MoreMenu/more_menu.dart';
+import 'package:waqtuu/Pages/PublicChat/publicChat_home.dart';
 import 'package:waqtuu/Pages/Router/router.dart';
+import 'package:waqtuu/Pages/SettingsPages/SettingsPage.dart';
 import 'package:waqtuu/Pages/asma_pages.dart';
 import 'package:waqtuu/Pages/waqtu_listSurah.dart';
 import 'package:waqtuu/Pages/waqtu_shalat.dart';
 import 'package:waqtuu/Service/service_data.dart';
-import 'package:waqtuu/ad_helper.dart';
 import 'package:badges/badges.dart';
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 class homeMenu extends StatefulWidget {
   const homeMenu({ Key? key }) : super(key: key);
@@ -69,32 +72,31 @@ class _homeMenuState extends State<homeMenu> {
   bool newMessage = false;
   bool showBadge = false;
   int index = 0;
-  _messageStream(){
-    if(!this.mounted) return;
-    Stream<QuerySnapshot> _messageStream = FirebaseFirestore.instance.collection('message').snapshots();
-    _messageStream.listen((event) {
-      if (event.docChanges.single.type.name == 'added') {
-          if (this.mounted) {
-            setState(() {
-              index++;
-            });
-          }
-          if(index > 0){
-            if (this.mounted) {
-              setState(() {
-                showBadge = true;
-              });
-            }
-          }else{
-            return;
-          }
-      } else {
-        return;
-      }
-    });
-  }
+  // _messageStream(){
+  //   if(!this.mounted) return;
+  //   Stream<QuerySnapshot> _messageStream = FirebaseFirestore.instance.collection('message').snapshots();
+  //   _messageStream.listen((event) {
+  //     if (event.docChanges.single.type.name == 'added') {
+  //         if (this.mounted) {
+  //           setState(() {
+  //             index++;
+  //           });
+  //         }
+  //         if(index > 0){
+  //           if (this.mounted) {
+  //             setState(() {
+  //               showBadge = true;
+  //             });
+  //           }
+  //         }else{
+  //           return;
+  //         }
+  //     } else {
+  //       return;
+  //     }
+  //   });
+  // }
       
-
   //=================================================
 
   _getTime() {
@@ -237,7 +239,7 @@ class _homeMenuState extends State<homeMenu> {
         isDarkMode = value;
         print('home: ' + isDarkMode.toString());
     });
-    _messageStream();
+    // _messageStream();
     super.initState(); 
   }
 
@@ -252,24 +254,20 @@ class _homeMenuState extends State<homeMenu> {
         elevation: 0,
         actionsIconTheme: IconThemeData(color: Colors.white),
         actions: [
-          IconButton(onPressed: () async {
-              if(isDarkMode == false){
-                SharedPreferences pref = await SharedPreferences.getInstance();
-                setState(() {
-                  isDarkMode = true;
-                });
-                pref.setBool('isDarkMode', isDarkMode);
-              }else{
-                SharedPreferences pref = await SharedPreferences.getInstance();
-                setState(() {
-                  isDarkMode = false;
-                 });
-                pref.setBool('isDarkMode', isDarkMode);
-              }
-          }, icon: isDarkMode ? Icon(Icons.light_mode) : Icon(Icons.dark_mode_outlined)),
+           IconButton(onPressed:(){
+            Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => SettingsPage(
+              isDarkMode : isDarkMode
+            )));
+          }, icon: Icon(Icons.settings, size: 20,)),
         ],
       ),
-      body: SafeArea(
+      body: DoubleBackToCloseApp(
+        snackBar: SnackBar(
+          backgroundColor: LColor,
+
+          content: Text('Tekan kembali lagi untuk keluar', textAlign: TextAlign.center,)),
+        child: SafeArea(
         child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -278,8 +276,9 @@ class _homeMenuState extends State<homeMenu> {
                                   child: Column(
                                     children: [
                                       Text("WAQTU : Qur'an Digital", style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white
+                                        fontSize: 25,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold
                                       ),
                                   ),
                                   Text(_timeString, style: TextStyle(
@@ -293,9 +292,10 @@ class _homeMenuState extends State<homeMenu> {
                                         color: Colors.white
                                       ),
                                   ),
-
+                                  SizedBox(height: 5),
                                   onInternet ?
                                   Text('${data.data!.hijri!.day} ${data.data!.hijri!.month!.en} ${data.data!.hijri!.year} Hijriah', style: TextStyle(
+                                        fontFamily: '',
                                         fontSize: 10,
                                         color: Colors.white
                                       ),
@@ -311,7 +311,6 @@ class _homeMenuState extends State<homeMenu> {
                                   child: Container(
                                     padding: EdgeInsets.all(20),
                                     width: double.maxFinite,
-                                    height: MediaQuery.of(context).size.height / 1.5,
                                     decoration: BoxDecoration(
                                       color: isDarkMode ? DColor : Colors.white,
                                       borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
@@ -323,7 +322,7 @@ class _homeMenuState extends State<homeMenu> {
                                           // color: Colors.amber,
                                           width: MediaQuery.of(context).size.width,
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                                             children: [
                                               Column( // Menu 1
                                                 children: [
@@ -349,7 +348,7 @@ class _homeMenuState extends State<homeMenu> {
                                                             width: 50,
                                                             height: 50,
                                                             decoration: BoxDecoration(
-                                                              color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                              color: isDarkMode ? Color(0xff395B64) : LColor,
                                                               borderRadius: BorderRadius.circular(10),
                                                               border: Border.all(color: Colors.white, width: 2),
                                                               boxShadow: [
@@ -381,6 +380,7 @@ class _homeMenuState extends State<homeMenu> {
                                                         ],
                                                       )
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text('Sholat', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                   SizedBox(height: 10,),
                                                 InkWell(
@@ -395,7 +395,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -411,6 +411,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text('Counter', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                 ],
                                               ),
@@ -428,7 +429,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -444,6 +445,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text("Qur'an", style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                   SizedBox(height: 10,),
                                                 InkWell(
@@ -458,7 +460,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -474,6 +476,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text('Asmaul', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                 ],
                                               ),
@@ -491,7 +494,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -507,17 +510,28 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text("Do'a", style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                   SizedBox(height: 10,),
                                                 InkWell(
                                                     onTap: (){
-                                                      launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*');
+                                                      if (onInternet == false) {
+                                                         ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(
+                                                              backgroundColor: Colors.red[300],
+                                                              content: Text('No Internet Connection!', textAlign: TextAlign.center,)
+                                                            )
+                                                          );
+                                                      } else {
+                                                        Navigator.push(context, 
+                                                        MaterialPageRoute(builder: (context) => PublicChatHome(isDarkMode: isDarkMode)));
+                                                      }
                                                     },
                                                       child: Container(
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -529,10 +543,11 @@ class _homeMenuState extends State<homeMenu> {
                                                         ]
                                                       ),
                                                       child: Center(
-                                                        child: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 30,),
+                                                        child: Icon(Icons.email, color: Colors.white, size: 28,),
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text('Masukan', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                 ],
                                               ),
@@ -551,7 +566,7 @@ class _homeMenuState extends State<homeMenu> {
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -567,17 +582,25 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(height: 5,),
                                                   Text('Dzikir', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                   SizedBox(height: 10,),
                                                 InkWell(
                                                     onTap: (){
-                                                      Fluttertoast.showToast(msg: 'Coming Soon', textColor: Colors.white, backgroundColor: Colors.teal);
+                                                      Navigator.push(context,
+                                                      MaterialPageRoute(builder: (context) => MoreMenuPage()));
+                                                      // ScaffoldMessenger.of(context).showSnackBar(
+                                                      //       SnackBar(
+                                                      //         backgroundColor: Colors.red[300],
+                                                      //         content: Text('Fitur masih dalam pengembangan', textAlign: TextAlign.center,)
+                                                      //       )
+                                                      // );
                                                     },
                                                       child: Container(
                                                       width: 50,
                                                       height: 50,
                                                       decoration: BoxDecoration(
-                                                        color: isDarkMode ? Color(0xff395B64) : Colors.teal,
+                                                        color: isDarkMode ? Color(0xff395B64) : LColor,
                                                         borderRadius: BorderRadius.circular(10),
                                                         border: Border.all(color: Colors.white, width: 2),
                                                         boxShadow: [
@@ -593,7 +616,8 @@ class _homeMenuState extends State<homeMenu> {
                                                       ),
                                                     ),
                                                   ),
-                                                  Text('More', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
+                                                  SizedBox(height: 5,),
+                                                  Text('Lainnya', style: TextStyle(color: isDarkMode ? Colors.white : LColor),),
                                                 ],
                                               ),
                                             ],
@@ -614,7 +638,7 @@ class _homeMenuState extends State<homeMenu> {
 
                                             TextButton(
                                               onPressed: (){
-                                                Fluttertoast.showToast(msg: 'Coming Soon', textColor: Colors.white, backgroundColor: Colors.teal);
+                                                Fluttertoast.showToast(msg: 'Coming Soon', textColor: Colors.white, backgroundColor: LColor);
                                               }, child: Text('Lihat Semua >', style: TextStyle(
                                                 color: Colors.grey
                                               ),))
@@ -655,80 +679,31 @@ class _homeMenuState extends State<homeMenu> {
                                     ),
                                   ),
                                 )
-                            
                             ],
                           )
              ),
-          bottomNavigationBar: Container(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            color: isDarkMode ? DColor : Colors.white,
-            child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // InkWell(
-              //   onTap: (){
-              //     launch('https://api.whatsapp.com/send?phone=6283808503597&text=halo%20admin%20*WAQTU*,%20saya%20ada%20masukan%20nih');
-              //   },
-              //   child: Container(
-              //   height: 55,
-              //   //color: Colors.amber,
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [
-              //       Icon(Icons.move_to_inbox_outlined, color: isDarkMode ? Colors.white :  Colors.teal),
-              //       Text('Masukan', style: TextStyle(
-              //         fontSize: 10,
-              //         color: isDarkMode ? Colors.white :  Colors.teal
-              //       ),)
-              //     ],
-              //   ),
-              // ),
-              // ),
+      )
 
-               InkWell(
-                onTap: (){
-                  if (onInternet == true) {
-                    setState(() {
-                      showBadge = false;
-                      index = 0;
-                    });
-                      Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RouterPages(
-                        isDarkMode : isDarkMode
-                      )));
-                  }else{
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: Colors.red[300],
-                        content: Text('No Internet Connection!', textAlign: TextAlign.center,)
-                      )
-                    );
-                  }
-                },
-                child: Container(
-                height: 55,
-                //color: Colors.amber,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Badge(
-                      elevation: 1,
-                      badgeContent: Text('${index}', style: TextStyle(color: Colors.white, fontSize: 10),),
-                      toAnimate: false,
-                      showBadge: showBadge,
-                      child: Icon(Icons.chat_outlined, color: isDarkMode ? Colors.white :  Colors.teal),
-                    ),
-                    Text('Public Chat', style: TextStyle(
-                      fontSize: 10,
-                      color: isDarkMode ? Colors.white :  Colors.teal
-                    ),)
-                  ],
-                ),
-              ),
-              ),
-            ],
-          ),
-          )
+            //  bottomNavigationBar: Container(
+            //    decoration: BoxDecoration(
+            //      color: Colors.white
+            //    ),
+            //    height: 50,
+            //    child: Center(
+            //      child: InkWell(
+            //        onTap: (){
+            //          print('dwadwadwa');
+            //        },
+            //          child: Column(
+            //            mainAxisAlignment: MainAxisAlignment.center,
+            //            children: [
+            //              FaIcon(FontAwesomeIcons.bookOpen, size: 20, color: LColor,),
+            //               Text('kumpulan hadis',  style: TextStyle(fontSize: 10, color: LColor),)
+            //            ],
+            //          ),
+            //      )
+            //    ),
+            //  )
         );
     }
 }

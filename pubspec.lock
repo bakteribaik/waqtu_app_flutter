@@ -162,6 +162,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.8"
+  double_back_to_close_app:
+    dependency: "direct main"
+    description:
+      name: double_back_to_close_app
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
   fake_async:
     dependency: transitive
     description:
@@ -632,6 +639,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1+1"
+  scroll_snap_list:
+    dependency: "direct main"
+    description:
+      name: scroll_snap_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4"
   shared_preferences:
     dependency: "direct main"
     description:

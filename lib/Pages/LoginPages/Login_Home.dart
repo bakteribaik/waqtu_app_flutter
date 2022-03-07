@@ -15,11 +15,15 @@ class LoginPages extends StatefulWidget {
 }
 
 class _LoginPagesState extends State<LoginPages> {
+
+  final LColor = Color(0xff01937C);
+  final DColor = Color(0xff2C3333);
+  final BColor = Color(0xff395B64);
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: LColor,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -50,9 +54,9 @@ class _LoginPagesState extends State<LoginPages> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      FaIcon(FontAwesomeIcons.google, color: Colors.teal,),
-                      Text('|', style: TextStyle(color: Colors.teal),),
-                      Text('Continue with google', style: TextStyle(color: Colors.teal),)
+                      FaIcon(FontAwesomeIcons.google, color: LColor,),
+                      Text('|', style: TextStyle(color: LColor),),
+                      Text('Continue with google', style: TextStyle(color: LColor),)
                     ],
                   ),
                 ),
@@ -60,7 +64,7 @@ class _LoginPagesState extends State<LoginPages> {
               SizedBox(height: 10,),
               Container(
                 width: 250,
-                child: Text("Continue with google for access all feature in WAQTU Public Chat", style: TextStyle(fontSize: 10, color: Colors.white), textAlign: TextAlign.center,),
+                child: Text("Apa saja yang ditampilkan? : Nama Profile Email", style: TextStyle(fontSize: 10, color: Colors.white), textAlign: TextAlign.center,),
               ),
             ],
           ),

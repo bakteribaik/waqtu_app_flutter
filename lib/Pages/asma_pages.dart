@@ -56,7 +56,7 @@ class _AsmaPagesState extends State<AsmaPages> {
   final BColor = Color(0xff395B64);
 
     return Scaffold(
-      backgroundColor: widget.isDarkMode ? BColor :  Colors.teal,
+      backgroundColor: widget.isDarkMode ? BColor :  LColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         centerTitle: true,

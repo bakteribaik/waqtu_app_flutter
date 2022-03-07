@@ -4,8 +4,8 @@ import 'package:waqtuu/Service/surahoffline_service.dart';
 
 class TafsirPages extends StatefulWidget {
 
-  final int ayatNumber;
-  final int SurahNumber;
+  final int ayatNumber;  //nerima data nomor ayat di quran
+  final int SurahNumber; //newrima data nomor surah
   final bool isDarkMode;
 
   const TafsirPages({

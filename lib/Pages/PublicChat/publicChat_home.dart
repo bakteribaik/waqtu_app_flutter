@@ -74,10 +74,10 @@ class _PublicChatHomeState extends State<PublicChatHome> {
         return message
           .add({
             'docID' : '',
-            'userID' : user!.uid,
-            'name': isAdmin ? adminName : user!.displayName,
+            // 'userID' : user!.uid,
+            'name': 'Sobat Waqtu',
             'message': controller.text,
-            'avatar': user!.photoURL,
+            // 'avatar': user!.photoURL,
             'date' : DateFormat('dd MMMM yyyy, HH:mm').format(DateTime.now()),
             'timestamp' : DateTime.now().millisecondsSinceEpoch
           })
@@ -119,37 +119,9 @@ class _PublicChatHomeState extends State<PublicChatHome> {
       });
   }
 
-  showAlertDialog(docid){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        content: Container(
-          height: 60,
-          child: Column(
-            children: [
-              InkWell(
-                onTap: (){
-                  isAdmin ? _deleteAdmin(docid) : _deleteMember(user!.uid,docid);
-                  Navigator.of(context).pop();},
-                child: Ink(
-                  decoration: BoxDecoration(
-                    color: Colors.teal,
-                    borderRadius: BorderRadius.circular(10)
-                  ),
-                  height: 50,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(child: Text('Hapus Pesan', style: TextStyle(color: Colors.white),)),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
   @override
   void initState() {
-    _checkAdmin();
+    // _checkAdmin();
     super.initState();
    }
 
@@ -161,13 +133,13 @@ class _PublicChatHomeState extends State<PublicChatHome> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: widget.isDarkMode ? DColor : Colors.teal,
-        title: Row(children: [Icon(Icons.public), SizedBox(width: 10), Text('Public Chat Room', style: TextStyle(fontSize: 14),)],),
-        actions: [
-          IconButton(onPressed: (){
-            final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
-            provider.logout(context);
-          }, icon: Icon(Icons.logout_rounded))
-        ],
+        title: Row(children: [Text('Beri Masukan Kepada Kami', style: TextStyle(fontSize: 14),)],),
+        // actions: [
+        //   IconButton(onPressed: (){
+        //     final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
+        //     provider.logout(context);
+        //   }, icon: Icon(Icons.logout_rounded))
+        // ],
       ),
       body: SafeArea(
         child: Container(
@@ -205,29 +177,27 @@ class _PublicChatHomeState extends State<PublicChatHome> {
                         borderRadius: BorderRadius.circular(10)
                       ),
                         child: ListTile(
-                          onTap: () {
-                            print('dwap');
-                            // showAlertDialog(document.id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.teal,
-                                elevation: 1,
-                                duration: Duration(seconds: 3),
-                                content: Text('Hapus Pesan?'),
-                                action: SnackBarAction(
-                                  label: 'Hapus',
-                                  textColor: Colors.white,
-                                  onPressed: (){
-                                    isAdmin ? _deleteAdmin(document.id) : _deleteMember(user!.uid, document.id);
-                                  },
-                                ),
-                              )
-                            );
-                          },
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.red,
-                            backgroundImage: NetworkImage(data['avatar'] ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png'),
-                          ),
+                          // onTap: () {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     SnackBar(
+                          //       backgroundColor: Colors.teal,
+                          //       elevation: 1,
+                          //       duration: Duration(seconds: 3),
+                          //       content: Text('Hapus Pesan?'),
+                          //       action: SnackBarAction(
+                          //         label: 'Hapus',
+                          //         textColor: Colors.white,
+                          //         onPressed: (){
+                          //           isAdmin ? _deleteAdmin(document.id) : _deleteMember(user!.uid, document.id);
+                          //         },
+                          //       ),
+                          //     )
+                          //   );
+                          // },
+                          // leading: CircleAvatar(
+                          //   backgroundColor: Colors.red,
+                          //   backgroundImage: NetworkImage(data['avatar'] ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png'),
+                          // ),
                           title: Text(data['name'], style: TextStyle(fontSize: 14, color: widget.isDarkMode ? Colors.white : Colors.teal, fontWeight: FontWeight.bold),),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,12 +213,12 @@ class _PublicChatHomeState extends State<PublicChatHome> {
                                   Text(data['date'], style: TextStyle(fontSize: 10, color: widget.isDarkMode ? Colors.white : Colors.grey),),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  isAdmin ? Text('Doc ID: ${data['docID']}', style: TextStyle(fontSize: 10),textAlign: TextAlign.end,) : SizedBox(),
-                                ],
-                              )
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.end,
+                              //   children: [
+                              //     isAdmin ? Text('Doc ID: ${data['docID']}', style: TextStyle(fontSize: 10),textAlign: TextAlign.end,) : SizedBox(),
+                              //   ],
+                              // )
                             ],
                           ),
                     ));
