@@ -16,9 +16,10 @@ class SpecificHadisPage extends StatefulWidget {
 class _SpecificHadisPageState extends State<SpecificHadisPage> {
 
   TextEditingController controller = TextEditingController();
-  String query ='';
+  int query = 0;
 
   bool isFetch = false;
+  bool kosong = false;
 
   specificHadisService service = specificHadisService();
   SpecificHadis data = SpecificHadis();
@@ -61,40 +62,61 @@ class _SpecificHadisPageState extends State<SpecificHadisPage> {
                   color: Colors.grey
                 ),
                 onChanged: (q) async{
-                  setState(() {
-                    query = q;
-                  });
-                  if (query.isNotEmpty) {
+                  if (q.isNotEmpty) {
+                      setState(() {
+                        kosong = false;
+                      });
+                      try {
+                        setState(() {
+                          query = int.parse(q);
+                        });
+                      } on FormatException {
+                        print('format salah');
+                      }
+                  } else {
+                    setState(() {
+                      kosong = true;
+                    });
+                    print('teksfield kosong');
+                  }
+                  if (query.runtimeType != String) {
                     if (data != null) {
                         data = await service.fetchData(widget.id_hadis ,query);
                         isFetch = true;
                         setState(() {});
                     } else {
-                      return;
+                      print('data tidak ada');
                     }
                   } else {
-                    return;
+                    print('data ini string');
                   }
                 },
               ),
             ),
-            query.isNotEmpty ? Expanded(
+            isFetch ?  Expanded(
               child: Container(
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
               ),
-              child: isFetch ? 
-                ListTile(
+              child:  
+                kosong ?Container(
+                    color: Colors.white,
+                    child: Center(child: FaIcon(FontAwesomeIcons.bookOpen, size: 150, color: Colors.grey[100],)),
+                  )
+                : ListTile(
                   title: Text('${data.data!.name} No. ${data.data!.contents?.number}', textAlign: TextAlign.center,),
                   subtitle: Column(children: [
                     SizedBox(height: 10,),
-                    SingleChildScrollView(
-                      child: Text('${data.data!.contents?.id}', textAlign: TextAlign.justify,),
-                    )
+                    Expanded(child:  Container(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Text('${data.data!.contents?.id}', textAlign: TextAlign.justify,),
+                      ),
+                    ))
                   ],),
                 )
-              : CircularProgressIndicator()
             )
           ) : Expanded(child: Container(
             color: Colors.white,

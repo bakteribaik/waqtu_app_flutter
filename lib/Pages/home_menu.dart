@@ -296,7 +296,7 @@ class _homeMenuState extends State<homeMenu> {
                                   onInternet ?
                                   Text('${data.data!.hijri!.day} ${data.data!.hijri!.month!.en} ${data.data!.hijri!.year} Hijriah', style: TextStyle(
                                         fontFamily: '',
-                                        fontSize: 10,
+                                        fontSize: 13,
                                         color: Colors.white
                                       ),
                                   )

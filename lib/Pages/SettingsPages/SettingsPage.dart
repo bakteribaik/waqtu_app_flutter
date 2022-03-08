@@ -56,6 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     Text('Aktifkan mode gelap?', style: TextStyle(color: widget.isDarkMode ? Colors.white : Colors.black87),),
                     Switch(
+                      activeColor: LColor,
                       value: isDarkMode, 
                       onChanged: (value)async{
                         SharedPreferences pref = await SharedPreferences.getInstance();
@@ -63,19 +64,19 @@ class _SettingsPageState extends State<SettingsPage> {
                             isDarkMode = value;
                           });
                         pref.setBool('isDarkMode', isDarkMode);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: Duration(hours: 1),
-                            backgroundColor: Colors.white,
-                            content: Text('Restart aplikasi untuk perubahan?', style: TextStyle(color: Colors.grey),),
-                            action: SnackBarAction(
-                              label: 'Restart Sekarang',
-                              onPressed: (){
-                                exit(0);
-                              },
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              duration: Duration(seconds: 5),
+                              backgroundColor: Colors.white,
+                              content: Text('Silakan mulai ulang aplikasi untuk melihat perubahan pada aplikasi', style: TextStyle(color: Colors.grey), textAlign: TextAlign.center,),
+                              // action: SnackBarAction(
+                              //   label: 'Restart Sekarang',
+                              //   onPressed: (){
+                              //     exit(0);
+                              //   },
+                              // )
                             )
-                          )
-                        );
+                          );
                       }
                     )
                   ],

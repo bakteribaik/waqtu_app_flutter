@@ -67,7 +67,6 @@ class _CounterPageState extends State<CounterPage> {
                     }, icon: Icon(Icons.replay_outlined, size: 40, color: Colors.white,)),
                     SizedBox(width: 50,),
                     IconButton(onPressed: (){
-                            AudioCache().play('audio/sfx/click_sound.mp3');
                             Clipboard.setData(ClipboardData());
                             HapticFeedback.heavyImpact();
                             if (Counter <= 9999) {

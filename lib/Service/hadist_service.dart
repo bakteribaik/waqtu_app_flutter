@@ -22,7 +22,7 @@ class ListHadistService{
 }
 
 class specificHadisService{
-  Future<SpecificHadis> fetchData(String nama,String nomor)async{
+  Future<SpecificHadis> fetchData(String nama,int nomor)async{
     try {
       final uri = 'https://api.hadith.sutanlab.id/books/$nama/$nomor';
       final response = await http.get(Uri.parse(uri));

@@ -1,19 +1,51 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:waqtuu/Pages/hadistPages/listhadist.dart';
 
-class MoreMenuPage extends StatelessWidget {
+class MoreMenuPage extends StatefulWidget {
   const MoreMenuPage({ Key? key }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  State<MoreMenuPage> createState() => _MoreMenuPageState();
+}
 
+class _MoreMenuPageState extends State<MoreMenuPage> {
+
+  
   final LColor = Color(0xff01937C);
   final DColor = Color(0xff2C3333);
   final BColor = Color(0xff395B64);
     
     bool isTap = false;
+    bool onInternet = false;
 
+  _internetChecker(){
+    if (Connectivity().checkConnectivity() != ConnectivityResult.none) {
+      if (this.mounted) {
+        setState(() {
+        onInternet = true;
+      });
+      }
+    } else {
+      if (this.mounted) {
+        setState(() {
+        onInternet = false;
+      });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _internetChecker();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: LColor,
       appBar: AppBar(
@@ -33,8 +65,17 @@ class MoreMenuPage extends StatelessWidget {
           child: Column(children: [
             GestureDetector(
               onTap: (){
-                Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ListHadistPages()));
+                if (onInternet == true) {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ListHadistPages()));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.red[300],
+                      content: Text('No Internet Connection!', textAlign: TextAlign.center,)
+                      )
+                  );
+                }
               },
                 child: Container(
                 height: 70,
