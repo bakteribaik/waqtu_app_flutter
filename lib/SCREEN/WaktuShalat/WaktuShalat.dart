@@ -1,11 +1,18 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:math';
 
 import 'package:adhan/adhan.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/weather.dart';
 
 class WaktuShalat extends StatefulWidget {
@@ -20,6 +27,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
   WeatherFactory wf = new WeatherFactory("b24f187152d5cec97d6753cf00ee510d", language: Language.INDONESIAN);
 
   var location  = new Location();
+
   late LocationData _locationData;
 
   String cityName = '';
@@ -29,20 +37,37 @@ class _WaktuShalatState extends State<WaktuShalat> {
   String WeatherSpeed = '';
   String WeatherHumidity = '';
 
+  int subuhAlarmID = 1;
+    int dzuhurAlarmID = 2;
+      int asharAlarmID = 3;
+        int maghribAlarmID = 4;
+          int isyaAlarmID = 5;
+
+  final audioPlayer = AudioPlayer();
   late PrayerTimes _prayerTimes;
 
   bool getLocation = false;
-  bool toogle = false;
+
+  //bool alarm adzan
+  bool subuh = false;
+  bool dzuhur = false;
+  bool ashar = false;
+  bool maghrib = false;
+  bool isya = false;
 
   _getPermission() async {
     var _permission = await location.hasPermission();
     var _locationEnabled = await location.serviceEnabled();
       if (_permission == PermissionStatus.denied || _permission == PermissionStatus.deniedForever) {
         _permission = await location.requestPermission();
+      }else{
+        setState(() {});
       }
 
       if (!_locationEnabled) {
           _locationEnabled = await location.requestService();
+      }else{
+        setState(() {});
       }
     
     if (_locationEnabled == false) {
@@ -58,6 +83,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
       if (_locationData != null) {
         var address = await geo.GeocodingPlatform.instance.placemarkFromCoordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
         Weather w = await wf.currentWeatherByLocation(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
+
         setState(() {
           getLocation = true;
           cityName = address.first.subAdministrativeArea.toString();
@@ -67,12 +93,18 @@ class _WaktuShalatState extends State<WaktuShalat> {
           WeatherSpeed = w.windSpeed.toString();
           WeatherHumidity = w.humidity.toString();
         });
-
+        
+        final prefs = await SharedPreferences.getInstance();
         final myCoordinates = Coordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble()); // Replace with your own location lat, lng.
-        final params = CalculationMethod.karachi.getParameters();
+        final params = CalculationMethod.singapore.getParameters();
         params.madhab = Madhab.shafi;
         _prayerTimes = PrayerTimes.today(myCoordinates, params);
-        print(DateFormat.jm().format(_prayerTimes.asr));
+
+        subuh = prefs.getBool('subuhKey')?? false;
+        dzuhur = prefs.getBool('dzuhurKey')?? false;
+        ashar = prefs.getBool('asharKey')?? false;
+        maghrib = prefs.getBool('maghribKey')?? false;
+        isya = prefs.getBool('isyaKey')?? false;
       }
   }
 
@@ -156,7 +188,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                                 color: Colors.green[300],
                                 borderRadius: BorderRadius.circular(10)
                               ),
-                              child: Text('Laporkan', style: TextStyle(color: Colors.white),),
+                              child: Text('${DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now())}', style: TextStyle(color: Colors.white, fontSize: 10),),
                             ),
                           )
                         ],
@@ -218,7 +250,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 70,
                           width: MediaQuery.of(context).size.width/1.2,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
+                            color: subuh ? Colors.lightGreen[50] : Colors.lightBlue[50],
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
                           ),
                           child: Column(
@@ -227,12 +259,58 @@ class _WaktuShalatState extends State<WaktuShalat> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(DateFormat('HH:mm').format(_prayerTimes.fajr), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
+                                  Text('${DateFormat('HH:mm').format(_prayerTimes.fajr)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                                  Row(
+                                    children: [
+                                      Text('Notif Adzan', style: TextStyle(fontSize: 8),),
+                                      Switch(
+                                        value: subuh, 
+                                        onChanged: (value)  async {
+                                          setState(() {
+                                            subuh = value;
+                                          });
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.setBool('subuhKey', value);
+                                          if (subuh == true) {
+                                            if(DateTime.now().hour > _prayerTimes.fajr.hour && DateTime.now().minute > _prayerTimes.fajr.minute){
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                subuhAlarmID, 
+                                                alarmAdzanSubuh, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day + 1,
+                                                  _prayerTimes.fajr.hour,
+                                                  _prayerTimes.fajr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }else{
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                subuhAlarmID, 
+                                                alarmAdzanSubuh, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day,
+                                                  _prayerTimes.fajr.hour,
+                                                  _prayerTimes.fajr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }
+                                          }else{
+                                            AndroidAlarmManager.cancel(subuhAlarmID);
+                                          }
+                                        }
+                                      )
+                                    ],
                                   )
                                 ],
                               ),
@@ -244,7 +322,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 30,
                           padding: EdgeInsets.only(left: 20, right: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color: subuh ? Colors.lightGreen[100] : Colors.lightBlue[100],
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                           ),
                           child: Text('Subuh', style: TextStyle(),),
@@ -260,21 +338,20 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 70,
                           width: MediaQuery.of(context).size.width/1.2,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
+                            color:Colors.lightBlue[50],
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              SizedBox(height: 5,),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(DateFormat('HH:mm').format(_prayerTimes.sunrise), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
+                                  Container(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: Icon(Icons.sunny_snowing, size: 40, color: Colors.yellow[700],)
                                   )
                                 ],
                               ),
@@ -286,10 +363,99 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 30,
                           padding: EdgeInsets.only(left: 20, right: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color:Colors.lightBlue[100],
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                           ),
-                          child: Text('Matahari terbit', style: TextStyle(),),
+                          child: Text('Matahari Terbit', style: TextStyle(),),
+                        )
+                      ]
+                    ), // kontainer waktu 1
+                    SizedBox(height: 5,),
+
+                    Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                          height: 70,
+                          width: MediaQuery.of(context).size.width/1.2,
+                          decoration: BoxDecoration(
+                            color: dzuhur ? Colors.lightGreen[50] : Colors.lightBlue[50],
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(DateFormat('HH:mm').format(_prayerTimes.dhuhr), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                                  Row(
+                                    children: [
+                                      Text('Notif Adzan', style: TextStyle(fontSize: 8),),
+                                      Switch(
+                                        value: dzuhur, 
+                                        onChanged: (value) async {
+                                          setState(() {
+                                            dzuhur = value;
+                                            print(dzuhur);
+                                          });
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.setBool('dzuhurKey', value);
+                                          if (dzuhur == true) {
+                                            if(DateTime.now().hour > _prayerTimes.dhuhr.hour && DateTime.now().minute > _prayerTimes.dhuhr.minute){
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                dzuhurAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day + 1,
+                                                  _prayerTimes.dhuhr.hour,
+                                                  _prayerTimes.dhuhr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }else{
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                dzuhurAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day,
+                                                  _prayerTimes.dhuhr.hour,
+                                                  _prayerTimes.dhuhr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }
+                                          }else{
+                                            AndroidAlarmManager.cancel(dzuhurAlarmID);
+                                          }
+                                        }
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width/1.2,
+                          height: 30,
+                          padding: EdgeInsets.only(left: 20, right: 10, top: 5),
+                          decoration: BoxDecoration(
+                            color: dzuhur ? Colors.lightGreen[100] : Colors.lightBlue[100],
+                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
+                          ),
+                          child: Text('Dzuhur', style: TextStyle(),),
                         )
                       ]
                     ), // kontainer waktu 2
@@ -302,7 +468,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 70,
                           width: MediaQuery.of(context).size.width/1.2,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
+                            color: ashar ? Colors.lightGreen[50] : Colors.lightBlue[50],
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
                           ),
                           child: Column(
@@ -311,12 +477,59 @@ class _WaktuShalatState extends State<WaktuShalat> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(DateFormat('HH:mm').format(_prayerTimes.dhuhr), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
+                                  Text(DateFormat('HH:mm').format(_prayerTimes.asr), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                                  Row(
+                                    children: [
+                                      Text('Notif Adzan', style: TextStyle(fontSize: 8),),
+                                      Switch(
+                                        value: ashar, 
+                                        onChanged: (value) async {
+                                          setState(() {
+                                            ashar = value;
+                                            print(ashar);
+                                          });
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.setBool('asharKey', value);
+                                          if (ashar == true) {
+                                            if (DateTime.now().hour > _prayerTimes.asr.hour && DateTime.now().minute > _prayerTimes.asr.minute) {
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                asharAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day + 1,
+                                                  _prayerTimes.asr.hour,
+                                                  _prayerTimes.asr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }else{
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                asharAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day,
+                                                  _prayerTimes.asr.hour,
+                                                  _prayerTimes.asr.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }
+                                          }else{
+                                            AndroidAlarmManager.cancel(asharAlarmID);
+                                          }
+                                        }
+                                      )
+                                    ],
                                   )
                                 ],
                               ),
@@ -328,10 +541,10 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 30,
                           padding: EdgeInsets.only(left: 20, right: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color: ashar ? Colors.lightGreen[100] : Colors.lightBlue[100],
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                           ),
-                          child: Text('Dzuhur', style: TextStyle(),),
+                          child: Text('Ashar', style: TextStyle(),),
                         )
                       ]
                     ), // kontainer waktu 3
@@ -344,7 +557,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 70,
                           width: MediaQuery.of(context).size.width/1.2,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
+                            color: maghrib ? Colors.lightGreen[50] : Colors.lightBlue[50],
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
                           ),
                           child: Column(
@@ -353,12 +566,59 @@ class _WaktuShalatState extends State<WaktuShalat> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(DateFormat('HH:mm').format(_prayerTimes.asr), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
+                                  Text(DateFormat('HH:mm').format(_prayerTimes.maghrib), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                                  Row(
+                                    children: [
+                                      Text('Notif Adzan', style: TextStyle(fontSize: 8),),
+                                      Switch(
+                                        value: maghrib, 
+                                        onChanged: (value) async {
+                                          setState(() {
+                                            maghrib = value;
+                                            print(maghrib);
+                                          });
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.setBool('maghribKey', value);
+                                          if (maghrib == true) {
+                                            if (DateTime.now().hour > _prayerTimes.maghrib.hour && DateTime.now().minute > _prayerTimes.maghrib.minute) {
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                maghribAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day + 1,
+                                                  _prayerTimes.maghrib.hour,
+                                                  _prayerTimes.maghrib.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }else{
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                maghribAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day,
+                                                  _prayerTimes.maghrib.hour,
+                                                  _prayerTimes.maghrib.minute
+                                                ),
+                                                rescheduleOnReboot: true
+                                              );
+                                            }
+                                          }else{
+                                            AndroidAlarmManager.cancel(maghribAlarmID);
+                                          }
+                                        }
+                                      )
+                                    ],
                                   )
                                 ],
                               ),
@@ -370,10 +630,10 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 30,
                           padding: EdgeInsets.only(left: 20, right: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color: maghrib ? Colors.lightGreen[100] : Colors.lightBlue[100],
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                           ),
-                          child: Text('Ashar', style: TextStyle(),),
+                          child: Text('Maghrib', style: TextStyle(),),
                         )
                       ]
                     ), // kontainer waktu 4
@@ -386,49 +646,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 70,
                           width: MediaQuery.of(context).size.width/1.2,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(DateFormat('HH:mm').format(_prayerTimes.maghrib), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width/1.2,
-                          height: 30,
-                          padding: EdgeInsets.only(left: 20, right: 10, top: 5),
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
-                          ),
-                          child: Text('Maghrib', style: TextStyle(),),
-                        )
-                      ]
-                    ), // kontainer waktu 5
-                    SizedBox(height: 5,),
-
-                    Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                          height: 70,
-                          width: MediaQuery.of(context).size.width/1.2,
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlue[50],
+                            color: isya ? Colors.lightGreen[50] : Colors.lightBlue[50],
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
                           ),
                           child: Column(
@@ -438,11 +656,57 @@ class _WaktuShalatState extends State<WaktuShalat> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(DateFormat('HH:mm').format(_prayerTimes.isha), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
-                                  IconButton(
-                                    onPressed: () {
-                                      
-                                    }, 
-                                    icon: Icon(Icons.notifications_outlined)
+                                  Row(
+                                    children: [
+                                      Text('Notif Adzan', style: TextStyle(fontSize: 8),),
+                                      Switch(
+                                        value: isya, 
+                                        onChanged: (value) async {
+                                          setState(() {
+                                            isya = value;
+                                          });
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.setBool('isyaKey', value);
+                                          if (isya == true) {
+                                            if(DateTime.now().hour > _prayerTimes.isha.hour && DateTime.now().minute > _prayerTimes.isha.minute){
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                isyaAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day + 1,
+                                                  _prayerTimes.isha.hour,
+                                                  _prayerTimes.isha.minute
+                                                ),
+                                                rescheduleOnReboot: true,
+                                              );
+                                            }else{
+                                              AndroidAlarmManager.periodic(
+                                                Duration(hours: 24), 
+                                                isyaAlarmID, 
+                                                alarmAdzan, 
+                                                exact: true, 
+                                                wakeup: true,
+                                                startAt: DateTime(
+                                                  DateTime.now().year,
+                                                  DateTime.now().month,
+                                                  DateTime.now().day,
+                                                  _prayerTimes.isha.hour,
+                                                  _prayerTimes.isha.minute
+                                                ),
+                                                rescheduleOnReboot: true,
+                                              );
+                                            }
+                                          }else{
+                                            AndroidAlarmManager.cancel(isyaAlarmID);
+                                          }
+                                        }
+                                      )
+                                    ],
                                   )
                                 ],
                               ),
@@ -454,14 +718,15 @@ class _WaktuShalatState extends State<WaktuShalat> {
                           height: 30,
                           padding: EdgeInsets.only(left: 20, right: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: Colors.lightBlue[100],
+                            color: isya ? Colors.lightGreen[100] : Colors.lightBlue[100],
                             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
                           ),
-                          child: Text('Isya', style: TextStyle(),),
+                          child: Text('Isha', style: TextStyle(),),
                         )
                       ]
-                    ), // kontainer waktu 6
-                    SizedBox(height: 5,)
+                    ), // kontainer waktu 1
+                    SizedBox(height: 5,),
+
                   ],
                 ),
               )
@@ -471,11 +736,70 @@ class _WaktuShalatState extends State<WaktuShalat> {
                 margin: EdgeInsets.only(top: 10),
                 width: MediaQuery.of(context).size.width/1.1,
                 child: Text('data lokasi diambil langsung dari perangkat, waktu sholat yang sudah dikalkulasi sesuai dengan perhitungan dari Universitas ilmu islam dan sesuai lokasi perangkat sekarang', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey),)
-              )
+              ),
+              
+              getLocation ? SizedBox() :
+              Column(
+                children: [
+                  SizedBox(height: 10,),
+                  Text('Refresh jika Loading terlalu lama...', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey),),
+                  GestureDetector(
+                    onTap: (){
+                      HapticFeedback.vibrate();
+                      _checkInternet();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Text('Refresh', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Colors.white),)
+                    ),
+                  )
+                ],
+              )            
             ],
           ),
         ),
       ),
     );
   }
+}
+
+void alarmAdzanSubuh() {
+    AudioPlayer audioPlayer = AudioPlayer();
+    audioPlayer.play(AssetSource('audio/adzan/adzan_subuh.mp3'));
+
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+          id: 1,
+          channelKey: 'high_importance_channel',
+          title: '🕋 Waqtu Shalat',
+          body: 'Memasuki Waktu Subuh pada lokasi anda',
+          criticalAlert: true,
+          displayOnBackground: true,
+          displayOnForeground: true,
+          wakeUpScreen: true
+      ),
+    );
+}
+
+void alarmAdzan() {
+  AudioPlayer audioPlayer = AudioPlayer();
+  audioPlayer.play(AssetSource('audio/adzan/adzan_subuh.mp3'));
+
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+        id: 2,
+        channelKey: 'high_importance_channel',
+        title: '🕋 Waqtu Shalat',
+        body: 'Memasuki Waktu Sholat pada lokasi anda',
+        criticalAlert: true,
+        displayOnBackground: true,
+        displayOnForeground: true,
+        wakeUpScreen: true
+    ),
+  );
 }

@@ -38,12 +38,19 @@ dependencies:
   svg_icon: ^0.0.1
   carousel_slider: ^4.1.1
   readmore: ^2.1.0
-  just_audio: ^0.9.27
+  audioplayers: ^1.0.1
   fluttertoast: ^8.0.9
   location: ^4.2.0
   weather: ^2.0.1
   geocoding: ^2.0.4
   adhan: ^2.0.0-nullsafety.2
+  shared_preferences: ^2.0.15
+  android_alarm_manager_plus: ^2.0.6
+  awesome_notifications: ^0.6.21
+  flutter_qiblah: 2.0.0
+  flutter_compass: ^0.6.0
+  font_awesome_flutter: ^10.1.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -88,8 +95,6 @@ flutter:
     - assets/data/
     - assets/svg/
     - assets/audio/asma/
-    - assets/audio/sfx/
-    - assets/audio/notification/
     - assets/audio/adzan/
 
 

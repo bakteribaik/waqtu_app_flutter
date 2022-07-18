@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:readmore/readmore.dart';
 import 'package:waqtuu/MODELS/QuranModel/QuranModel.dart' as quran;
 import 'package:waqtuu/SCREEN/Quran/Tafsir.dart';
@@ -27,9 +27,9 @@ class _QuranPagesState extends State<QuranPages> {
   quran.QuranModel data = quran.QuranModel();
   LocalData localData = LocalData();
 
-  List result = []; 
+  final audioPlayer = AudioPlayer();
 
-  AudioPlayer audioPlayer = AudioPlayer();
+  List result = []; 
 
   bool isFetch = false;
   bool audioPlaying = false;
@@ -95,6 +95,7 @@ class _QuranPagesState extends State<QuranPages> {
                             height: 250,
                             padding: EdgeInsets.all(10),
                             child: SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -133,13 +134,14 @@ class _QuranPagesState extends State<QuranPages> {
       body: isFetch ? Container(
         child: Column(
           children: [
+            SizedBox(height: 20,),
             Container(
-              padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
+              padding: EdgeInsets.only(left: 50, right: 50, top: 5, bottom: 5),
               child: Container(
                 padding: EdgeInsets.only(left: 15, right: 10),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20)
+                  borderRadius: BorderRadius.circular(40)
                 ),
                 child: TextField(
                   onChanged: (value) {
@@ -158,7 +160,7 @@ class _QuranPagesState extends State<QuranPages> {
                 ),
               ),
             ),
-            
+            SizedBox(height: 10,),
             query.isEmpty ? _onQuery() : _onSearch()
           ],
         ),
@@ -213,11 +215,11 @@ class _QuranPagesState extends State<QuranPages> {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 1,
-                                  color: Color.fromARGB(255, 77, 196, 83),
+                                  color: Colors.blueGrey,
                                 ),
                                 borderRadius: BorderRadius.circular(5)
                               ),
-                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 77, 196, 83),),),
+                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                             ),
                           ),
                           SizedBox(width: 10,),
@@ -227,16 +229,7 @@ class _QuranPagesState extends State<QuranPages> {
                               try{
                                 final result = await InternetAddress.lookup('google.com');
                                 if (result.isNotEmpty) {
-                                  final result = audioPlayer.setUrl(quran.audio!.primary.toString());
-                                  if (result != null) {
-                                      audioPlayer.play();
-                                      setState(() {
-                                        audioPlaying = true;
-                                        nilaiIndex = index;
-                                      });
-                                  }else{
-                                      Fluttertoast.showToast(msg: 'server stream error!');
-                                  }
+                                  //plat audio
                                 }
                               }catch (e){
                                 Fluttertoast.showToast(msg: 'Tidak terhubung internet');
@@ -266,7 +259,8 @@ class _QuranPagesState extends State<QuranPages> {
                   child: Text(quran.text!.arab.toString(), textAlign: TextAlign.right, style: TextStyle(
                     fontSize: 28,
                     fontFamily: 'Misbah',
-                    height: 2
+                    height: 2,
+                    color: Colors.blueGrey
                   ),),
                 ),
 
@@ -341,11 +335,11 @@ class _QuranPagesState extends State<QuranPages> {
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 1,
-                                  color: Color.fromARGB(255, 77, 196, 83),
+                                  color: Colors.blueGrey,
                                 ),
                                 borderRadius: BorderRadius.circular(5)
                               ),
-                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Color.fromARGB(255, 77, 196, 83),),),
+                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                             ),
                           ),
                           SizedBox(width: 10,),
@@ -355,16 +349,7 @@ class _QuranPagesState extends State<QuranPages> {
                               try{
                                 final result = await InternetAddress.lookup('google.com');
                                 if (result.isNotEmpty) {
-                                  final result = audioPlayer.setUrl(quran.verses![index].audio!.primary.toString());
-                                  if (result != null) {
-                                      audioPlayer.play();
-                                      setState(() {
-                                        nilaiIndex = index;
-                                        print(nilaiIndex);
-                                      });
-                                  }else{
-                                      Fluttertoast.showToast(msg: 'server stream error!');
-                                  }
+                                  
                                 }
                               }catch (e){
                                 Fluttertoast.showToast(msg: 'Tidak terhubung Internet');
@@ -394,7 +379,8 @@ class _QuranPagesState extends State<QuranPages> {
                   child: Text(quran.verses![index].text!.arab.toString(), textAlign: TextAlign.right, style: TextStyle(
                     fontSize: 28,
                     fontFamily: 'Misbah',
-                    height: 2
+                    height: 2,
+                    color: Colors.blueGrey
                   ),),
                 ),
 
@@ -402,18 +388,16 @@ class _QuranPagesState extends State<QuranPages> {
                 Container(
                   padding: EdgeInsets.only(right: 10, left: 10),
                   width: MediaQuery.of(context).size.width,
-                  // color: Colors.amber,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 10,),
-                      //Text(quran.verses![index].translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.grey),)
                       ReadMoreText(quran.verses![index].translation!.id.toString(),
                         trimLines: 4,
                         colorClickableText: Colors.green,
                         trimCollapsedText: 'Lihat Lebih banyak',
                         trimExpandedText: ' Lihat lebih sedikit',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
                       ),
                     ],
                   )

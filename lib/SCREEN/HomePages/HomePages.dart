@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:svg_icon/svg_icon.dart';
+import 'package:waqtuu/SCREEN/Qibla/QiblaPages.dart';
 import 'package:waqtuu/SCREEN/Quran/ListQuran.dart';
 import 'package:waqtuu/SCREEN/WaktuShalat/WaktuShalat.dart';
 
@@ -29,7 +31,6 @@ class _HomePagesState extends State<HomePages> {
     '“Surga itu ada dibawah telapak kaki Ibu."',
     '"Kita adalah makhluk yang suka menyalahkan dari luar, tidak menyadari bahwa masalah biasanya dari dalam."',
     '"Jangan berduka, apa pun yang hilang darimu akan kembali lagi dalam wujud lain."',
-    '"Perbanyaklah istighfar di mana pun kita berada karena sesungguhnya kita tidak mengetahui kapan turunnya ampunan Allah."',
     '"Barangsiapa diharamkan atasnya kasih sayang, maka segala bentuk kebaikan akan dihilangkan darinya."',
     '"Barangsiapa yang tidak mensyukuri yang sedikit, maka ia tidak akan mampu mensyukuri sesuatu yang banyak."',
     '"Selalu ada pahala bagi setiap pelaku kebaikan kepada seluruh makhluk hidup."',
@@ -103,13 +104,13 @@ class _HomePagesState extends State<HomePages> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if(DateTime.now().hour >= 5 && DateTime.now().hour <= 11)
-                            Text('menjelang sholat dzuhur', style: TextStyle(fontSize: 13, color: Colors.white),)
+                            Text('menuju sholat dzuhur', style: TextStyle(fontSize: 13, color: Colors.white),)
                           else if (DateTime.now().hour >= 11 && DateTime.now().hour <= 14)
-                            Text('menjelang sholat ashar', style: TextStyle(fontSize: 13, color: Colors.white),)
+                            Text('menuju sholat ashar', style: TextStyle(fontSize: 13, color: Colors.white),)
                           else if (DateTime.now().hour >= 14 && DateTime.now().hour <= 17)
-                            Text('menjelang sholat maghrib', style: TextStyle(fontSize: 13, color: Colors.white),)
+                            Text('menuju sholat maghrib', style: TextStyle(fontSize: 13, color: Colors.white),)
                           else if (DateTime.now().hour >= 17 && DateTime.now().hour <= 18)
-                            Text('menjelang sholat isya', style: TextStyle(fontSize: 13, color: Colors.white),)
+                            Text('menuju sholat isya', style: TextStyle(fontSize: 13, color: Colors.white),)
                           else
                             Text('menuju sholat subuh', style: TextStyle(fontSize: 13, color: Colors.white),),
 
@@ -129,9 +130,9 @@ class _HomePagesState extends State<HomePages> {
                         children: [
                           if(DateTime.now().hour >= 0 && DateTime.now().hour <= 5)
                             Icon(Icons.nights_stay_outlined, size: 55, color: Colors.white,)
-                          else if(DateTime.now().hour >= 5 && DateTime.now().hour <= 18)
+                          else if(DateTime.now().hour >= 5 && DateTime.now().hour <= 17)
                             Icon(Icons.light_mode, size: 55, color: Colors.white,)
-                          else if(DateTime.now().hour >= 18 && DateTime.now().hour <= 24)
+                          else if(DateTime.now().hour >= 17 && DateTime.now().hour <= 24)
                             Icon(Icons.dark_mode_outlined, size: 55, color: Colors.white,)
                           else 
                             SizedBox()
@@ -206,23 +207,29 @@ class _HomePagesState extends State<HomePages> {
 
                     SizedBox(width: 13,),
 
-                    Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(5),
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Color.fromARGB(255, 49, 221, 150)
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => QiblaPages()));
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Color.fromARGB(255, 49, 221, 150)
+                            ),
+                            child: Center(child: FaIcon(FontAwesomeIcons.kaaba, color: Colors.white, size: 30,))
                           ),
-                          //child: SvgIcon('assets/svg/allah.svg', color: Colors.white,),
-                        ),
-                        SizedBox(height: 3,),
-                        Container(
-                          child: Text('Asmaul\nHusna', style: TextStyle(fontSize: 11, color: Colors.grey), textAlign: TextAlign.center,),
-                        )
-                      ],
+                          SizedBox(height: 3,),
+                          Container(
+                            child: Text('Qiblah\n', style: TextStyle(fontSize: 11, color: Colors.grey), textAlign: TextAlign.center,),
+                          )
+                        ],
+                      ),
                     ),
 
                     SizedBox(width: 13,),
@@ -410,8 +417,10 @@ class _HomePagesState extends State<HomePages> {
                 height: MediaQuery.of(context).size.width/2.5,
                 child: CarouselSlider.builder(
                   options: CarouselOptions(
+                    initialPage: 1,
                     height: 100, 
                     scrollDirection: Axis.vertical,
+                    pauseAutoPlayOnTouch: true,
                     enlargeCenterPage: true,
                     autoPlay: true,
                     autoPlayAnimationDuration: Duration(milliseconds: 500)

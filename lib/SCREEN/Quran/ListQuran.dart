@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:waqtuu/MODELS/ListQuranModel/ListQuranModel.dart';
 import 'package:waqtuu/SCREEN/Quran/Quran.dart';
 import 'package:waqtuu/SERVICE/LocalDataFetch.dart';
@@ -23,9 +23,9 @@ class _ListQuranState extends State<ListQuran> {
   String query = '';
   int nilaiIndex = 0;
   bool isFetch = false;
-  bool playing = false;
+  bool isPlaying = false;
 
-  AudioPlayer audioPlayer = AudioPlayer();
+  final audioPlayer = new AudioPlayer();
 
   _getData() async {
     data = await localData.listQuran();
@@ -34,19 +34,27 @@ class _ListQuranState extends State<ListQuran> {
     });
   }
 
-  _playAudio(){
-    if (playing == false) {
+  //'https://zulfikaralwi.my.id/wp-content/uploads/2022/02/${quran.number}.mp3'
+
+  _playAudio(number){
+    if (isPlaying == false) {
+      audioPlayer.play(UrlSource('https://zulfikaralwi.my.id/wp-content/uploads/2022/02/${number}.mp3'));
       setState(() {
-        playing = true;
+        isPlaying = true;
       });
-      audioPlayer.play();
+    }else if(audioPlayer.state == PlayerState.paused){
+      audioPlayer.resume();
+      setState(() {
+        isPlaying = true;
+      });
     }else{
-      setState(() {
-        playing = false;
-      });
       audioPlayer.pause();
+      setState(() {
+        isPlaying = false;
+      });
     }
   }
+
 
   @override
   void initState() {
@@ -86,10 +94,10 @@ class _ListQuranState extends State<ListQuran> {
             SizedBox(height: 20,),
             Container(
               padding: EdgeInsets.only(left: 20, right: 10),
-              width: MediaQuery.of(context).size.width/1.2,
+              width: MediaQuery.of(context).size.width/1.3,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Color.fromARGB(160, 225, 245, 254),
                 borderRadius: BorderRadius.circular(30)
               ),
               child: TextField(
@@ -99,10 +107,12 @@ class _ListQuranState extends State<ListQuran> {
                     _searching(query);
                   });
                 },
+                style: TextStyle(color: Colors.lightBlue),
                 decoration: InputDecoration(
                   hintText: 'Cari Surah',
-                  suffixIcon: Icon(Icons.search),
-                  border: InputBorder.none
+                  suffixIcon: Icon(Icons.search, color: Colors.lightBlue,),
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.lightBlue)
                 ),
               ),
             ),
@@ -120,7 +130,7 @@ class _ListQuranState extends State<ListQuran> {
     );
   }
   _searching(String input){
-    result = data.data!.where((quran) => quran.name!.translation!.id!.toLowerCase().replaceAll('-', ' ').contains(input.toLowerCase())).toList();
+    result = data.data!.where((quran) => quran.name!.transliteration!.id!.toLowerCase().replaceAll('-', ' ').contains(input.toLowerCase())).toList();
   }
 
   onSearch(){
@@ -130,19 +140,11 @@ class _ListQuranState extends State<ListQuran> {
       itemBuilder: (context, index){
         final quran = result[index];
         return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20)
-          ),
           child: Column(
             children: [
               ListTile(
                 onTap: (){
                   FocusManager.instance.primaryFocus?.unfocus();
-                  setState(() {
-                    playing = false;
-                    nilaiIndex = 0;
-                  });
-                  audioPlayer.stop();
                   Navigator.push(context,
                   MaterialPageRoute(builder: (context) => QuranPages(
                     quranNumber: quran.number!.toInt(),
@@ -155,22 +157,17 @@ class _ListQuranState extends State<ListQuran> {
                 ),
                 title: Row(
                   children: [
-                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14),),
+                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),),
                      SizedBox(width: 5,),
                      GestureDetector(
                       onTap: () async {
                         try{
                           final result = await InternetAddress.lookup('google.com');
                           if (result.isNotEmpty) {
-                            final result = audioPlayer.setUrl('https://zulfikaralwi.my.id/wp-content/uploads/2022/02/${quran.number}.mp3');
-                            if (result != null) {
-                              setState(() {
-                                nilaiIndex = index;
-                              });
-                                _playAudio();
-                            }else{
-                                Fluttertoast.showToast(msg: 'server stream error!');
-                            }
+                            setState(() {
+                              nilaiIndex = index;
+                            });
+                            _playAudio(quran.number);
                           }
                         }catch (e){
                           Fluttertoast.showToast(msg: 'Tidak terhubung internet');
@@ -182,13 +179,27 @@ class _ListQuranState extends State<ListQuran> {
                             color: Colors.lightBlue[50],
                             borderRadius: BorderRadius.circular(5)
                           ),
-                          child: Center(child: playing == true ? nilaiIndex == index ? Icon(Icons.pause, size: 12, color: Colors.lightBlue,) : Icon(Icons.music_note, size: 12, color: Colors.lightBlue,) : Icon(Icons.music_note, size: 12, color: Colors.lightBlue,)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if(isPlaying == true && nilaiIndex == index)
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.pause, color: Colors.lightBlue, size: 15,),
+                                )
+                              else  
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.music_note, color: Colors.lightBlue, size: 15,),
+                                )
+                            ],
+                          )
                       ),
                     )
                   ],
                 ),
-                subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.blueGrey),),
-                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, color: Colors.black54),),
+                subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.lightBlue[300]),),
+                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28,color: Colors.blueGrey, fontFamily: 'Misbah'),),
               ),
             ],
           )
@@ -204,19 +215,11 @@ class _ListQuranState extends State<ListQuran> {
       itemBuilder: (context, index){
         var quran = data.data![index];
         return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20)
-          ),
           child: Column(
             children: [
               ListTile(
                 onTap: (){
                   FocusManager.instance.primaryFocus?.unfocus();
-                  setState(() {
-                    playing = false;
-                    nilaiIndex = 0;
-                  });
-                  audioPlayer.stop();
                   Navigator.push(context,
                   MaterialPageRoute(builder: (context) => QuranPages(
                     quranNumber: quran.number!.toInt(),
@@ -229,40 +232,50 @@ class _ListQuranState extends State<ListQuran> {
                 ),
                 title: Row(
                   children: [
-                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14),),
+                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),),
                      SizedBox(width: 5,),
                      GestureDetector(
                       onTap: () async {
+                        FocusManager.instance.primaryFocus?.unfocus();
                         try{
                           final result = await InternetAddress.lookup('google.com');
                           if (result.isNotEmpty) {
-                            final result = audioPlayer.setUrl('https://zulfikaralwi.my.id/wp-content/uploads/2022/02/${quran.number}.mp3');
-                            if (result != null) {
-                              setState(() {
-                                nilaiIndex = index;
-                              });
-                                _playAudio();
-                            }else{
-                                Fluttertoast.showToast(msg: 'server stream error!');
-                            }
+                            setState(() {
+                              nilaiIndex = index;
+                            });
+                            _playAudio(quran.number);
                           }
                         }catch (e){
                           Fluttertoast.showToast(msg: 'Tidak terhubung internet');
                         }
                       },
                        child: Container(
-                          padding: EdgeInsets.all(3),
+                          padding: EdgeInsets.all(2),
                           decoration: BoxDecoration(
                             color: Colors.lightBlue[50],
                             borderRadius: BorderRadius.circular(5)
                           ),
-                          child: Center(child: playing == true ? nilaiIndex == index ? Icon(Icons.pause, size: 12, color: Colors.lightBlue,) : Icon(Icons.music_note, size: 12, color: Colors.lightBlue,) : Icon(Icons.music_note, size: 12, color: Colors.lightBlue,)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if(isPlaying == true && nilaiIndex == index)
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.pause, color: Colors.lightBlue, size: 15,),
+                                )
+                              else  
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.music_note, color: Colors.lightBlue, size: 15,),
+                                )
+                            ],
+                          )
                       ),
                     )
                   ],
                 ),
-                subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.blueGrey),),
-                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, color: Colors.black54, fontFamily: 'Misbah'),),
+                subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.lightBlue[200]),),
+                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, fontFamily: 'Misbah', color: Colors.blueGrey),),
               ),
             ],
           )

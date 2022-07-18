@@ -55,6 +55,7 @@ class _TafsirPagesState extends State<TafsirPages> {
       ),
       body: isFetch ? 
         SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Container(
             alignment: Alignment.center,
             child: Column(
