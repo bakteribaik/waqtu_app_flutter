@@ -199,7 +199,7 @@ class _ListQuranState extends State<ListQuran> {
                   ],
                 ),
                 subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.lightBlue[300]),),
-                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28,color: Colors.blueGrey, fontFamily: 'Misbah'),),
+                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, color: Colors.blueGrey), textAlign: TextAlign.right,),
               ),
             ],
           )
@@ -275,7 +275,7 @@ class _ListQuranState extends State<ListQuran> {
                   ],
                 ),
                 subtitle: Text(quran.name!.translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.lightBlue[200]),),
-                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, fontFamily: 'Misbah', color: Colors.blueGrey),),
+                trailing: Text(quran.name!.short.toString(), style: TextStyle(fontSize: 28, color: Colors.blueGrey), textAlign: TextAlign.right,),
               ),
             ],
           )

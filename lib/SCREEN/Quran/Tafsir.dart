@@ -19,6 +19,15 @@ class _TafsirPagesState extends State<TafsirPages> {
 
   quran.QuranModel data = quran.QuranModel();
   LocalData localData = LocalData();
+  ScrollController _scrollController = ScrollController();
+
+  double _scrollPosition = 0;
+
+  _scrollListener() {
+    setState(() {
+      _scrollPosition = _scrollController.position.pixels;
+    });
+  }
 
   late int quranNumber;
   late int numberInSurah;
@@ -38,6 +47,8 @@ class _TafsirPagesState extends State<TafsirPages> {
     // TODO: implement initState
     super.initState();
     _gerData();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -48,14 +59,25 @@ class _TafsirPagesState extends State<TafsirPages> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text('Tafsir ayat', style: TextStyle(color: Colors.grey, fontSize: 14),),
+        //Text('Tafsir Surah ' + data.data![quranNumber].name!.transliteration!.id.toString() + ' ayat ke ${numberInSurah+1}', style: TextStyle(color: Colors.grey),),
+        title: Column(
+          children: [
+            Text('Tafsir ayat', style: TextStyle(color: Colors.grey, fontSize: 14),),
+            if(_scrollPosition > 150)
+              Text('Tafsir Surah ' + data.data![quranNumber].name!.transliteration!.id.toString() + ' ayat ke ${numberInSurah+1}', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),)
+            else 
+              SizedBox()
+            // Text(_scrollPosition.toString(), style: TextStyle(color: Colors.grey, fontSize: 14),)
+          ],
+        ),
         iconTheme: IconThemeData(
           color: Colors.grey
         ),
       ),
       body: isFetch ? 
-        SingleChildScrollView(
+      SingleChildScrollView(
           physics: BouncingScrollPhysics(),
+          controller: _scrollController,
           child: Container(
             alignment: Alignment.center,
             child: Column(
@@ -72,7 +94,7 @@ class _TafsirPagesState extends State<TafsirPages> {
                     children: [
                       Row(
                         children: [
-                          Text('Tafsir ' + data.data![quranNumber].name!.transliteration!.id.toString() + ' ayat ke ${numberInSurah+1}', style: TextStyle(color: Colors.grey),),
+                          Text('Tafsir Surah ' + data.data![quranNumber].name!.transliteration!.id.toString() + ' ayat ke ${numberInSurah+1}', style: TextStyle(color: Colors.grey),),
                         ],
                       ),
                       SizedBox(height: 20,),
@@ -83,9 +105,9 @@ class _TafsirPagesState extends State<TafsirPages> {
                     ],
                   ),
                 ),
-
+      
                 SizedBox(height: 10,),
-
+      
                 Container(
                   width: MediaQuery.of(context).size.width/1.2,
                   child: Column(
@@ -96,9 +118,9 @@ class _TafsirPagesState extends State<TafsirPages> {
                     ],
                   ),
                 ),
-
+      
                 SizedBox(height: 10,),
-
+      
                 Container(
                   width: MediaQuery.of(context).size.width/1.2,
                   child: Column(
@@ -116,7 +138,7 @@ class _TafsirPagesState extends State<TafsirPages> {
               ],
             ),
           ),
-        )      
+        )
       : SizedBox()
     );
   }

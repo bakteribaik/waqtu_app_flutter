@@ -4,6 +4,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:readmore/readmore.dart';
 import 'package:waqtuu/MODELS/QuranModel/QuranModel.dart' as quran;
 import 'package:waqtuu/SCREEN/Quran/Tafsir.dart';
@@ -32,10 +35,34 @@ class _QuranPagesState extends State<QuranPages> {
   List result = []; 
 
   bool isFetch = false;
-  bool audioPlaying = false;
+  bool isPlaying = false;
   String query = '';
   int nilaiIndex = 0;
   late int quranNumber;
+
+  _playAudio(url){
+    if (isPlaying == false) {
+      audioPlayer.play(UrlSource(url));
+      setState(() {
+        isPlaying = true;
+      });
+      audioPlayer.onPlayerComplete.listen((event) {
+        setState(() {
+          isPlaying = false;
+        });
+      });
+    }else if(audioPlayer.state == PlayerState.paused){
+      audioPlayer.resume();
+      setState(() {
+        isPlaying = true;
+      });
+    }else{
+      audioPlayer.pause();
+      setState(() {
+        isPlaying = false;
+      });
+    }
+  }
 
   _getData() async {
     data = await localData.Quran();
@@ -179,112 +206,127 @@ class _QuranPagesState extends State<QuranPages> {
         itemCount: result.length,
         itemBuilder: (context, index){
           var quran = result[index];
-          return Container(
-            padding: EdgeInsets.all(5),
-            margin: EdgeInsets.only(bottom: 10),
-            color: quran.number!.inSurah.isEven ? Colors.grey[50] : Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 13,
-                        backgroundImage: AssetImage('assets/images/ayat_frame.png'),
-                        backgroundColor: Colors.transparent,
-                        child: Text(quran.number!.inSurah.toString(), style: TextStyle(fontSize: 11, color: Colors.green),),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: (){
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              audioPlayer.stop();
-                              HapticFeedback.vibrate();
-                              Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => TafsirPages(
-                                quranNumber: quranNumber,
-                                numberInSurah: quran.number!.inSurah!.toInt(),
-                              )));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1,
-                                  color: Colors.blueGrey,
+          return FocusedMenuHolder(
+            blurBackgroundColor: Colors.black.withOpacity(0.5),
+            blurSize: 1,
+            onPressed: (){
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            openWithTap: true,
+            animateMenuItems: false,
+            menuItems: [
+              FocusedMenuItem(
+                backgroundColor: Colors.black.withOpacity(0.5),
+                title: Text('Waqtu Digital Qur`an Indonesia\ndapatkan di PlayStore', style: TextStyle(fontSize: 11, color: Colors.white),), 
+                onPressed: (){}
+              ),
+            ],
+            child: Container(
+              padding: EdgeInsets.all(5),
+              margin: EdgeInsets.only(bottom: 10),
+              color: quran.number!.inSurah.isEven ? Colors.grey[50] : Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 13,
+                          backgroundImage: AssetImage('assets/images/ayat_frame.png'),
+                          backgroundColor: Colors.transparent,
+                          child: Text(quran.number!.inSurah.toString(), style: TextStyle(fontSize: 11, color: Colors.green),),
+                        ),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                audioPlayer.stop();
+                                HapticFeedback.vibrate();
+                                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => TafsirPages(
+                                  quranNumber: quranNumber,
+                                  numberInSurah: quran.number!.inSurah!.toInt(),
+                                )));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.blueGrey,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5)
                                 ),
-                                borderRadius: BorderRadius.circular(5)
+                                child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                               ),
-                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                             ),
-                          ),
-                          SizedBox(width: 10,),
-                          GestureDetector(
-                            onTap: () async {
-                              HapticFeedback.vibrate();
-                              try{
-                                final result = await InternetAddress.lookup('google.com');
-                                if (result.isNotEmpty) {
-                                  //plat audio
+                            SizedBox(width: 10,),
+                            GestureDetector(
+                              onTap: () async {
+                                HapticFeedback.vibrate();
+                                try{
+                                  final result = await InternetAddress.lookup('google.com');
+                                  if (result.isNotEmpty) {
+                                    _playAudio(quran.audio!.primary);
+                                  }
+                                }catch (e){
+                                  Fluttertoast.showToast(msg: 'Tidak terhubung internet');
                                 }
-                              }catch (e){
-                                Fluttertoast.showToast(msg: 'Tidak terhubung internet');
-                              }
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: nilaiIndex == index ? Colors.lightBlue : Colors.grey,
-                                borderRadius: BorderRadius.circular(8)
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: nilaiIndex == index ? Colors.lightBlue : Colors.grey,
+                                  borderRadius: BorderRadius.circular(8)
+                                ),
+                                padding: EdgeInsets.all(3),
+                                child: isPlaying ? nilaiIndex == index ? Icon(Icons.pause, size: 16, color: Colors.white,) : Icon(Icons.music_note_outlined, size: 16, color: Colors.white,) : Icon(Icons.music_note_outlined, size: 16, color: Colors.white,),
                               ),
-                              padding: EdgeInsets.all(3),
-                              child: Icon(Icons.music_note_outlined, size: 16, color: Colors.white,),
                             ),
-                          ),
-                           SizedBox(width: 10,)
-                        ],
-                      )
-                    ],
+                             SizedBox(width: 10,)
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-
-                SizedBox(height: 10,),
-                
-                Container(
-                  padding: EdgeInsets.only(right: 10, left: 10),
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(quran.text!.arab.toString(), textAlign: TextAlign.right, style: TextStyle(
-                    fontSize: 28,
-                    fontFamily: 'Misbah',
-                    height: 2,
-                    color: Colors.blueGrey
-                  ),),
-                ),
-
-                SizedBox(height: 5,),
-                Container(
-                  padding: EdgeInsets.only(right: 10, left: 10),
-                  width: MediaQuery.of(context).size.width,
-                  // color: Colors.amber,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10,),
-                      //Text(quran.verses![index].translation!.id.toString(), style: TextStyle(fontSize: 12, color: Colors.grey),)
-                      ReadMoreText(quran.translation!.id.toString(),
-                        trimLines: 4,
-                        colorClickableText: Colors.green,
-                        trimCollapsedText: 'Lihat Lebih banyak',
-                        trimExpandedText: ' Lihat lebih sedikit',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      )
-                    ],
-                  )
-                ),
-              ],
+          
+                  SizedBox(height: 10,),
+                  
+                  Container(
+                    padding: EdgeInsets.only(right: 10, left: 10),
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(quran.text!.arab.toString(), textAlign: TextAlign.right, style: TextStyle(
+                      fontSize: 28,
+                      fontFamily: 'Misbah',
+                      height: 2,
+                      color: Colors.blueGrey
+                    ),),
+                  ),
+          
+                  SizedBox(height: 5,),
+                  Container(
+                    padding: EdgeInsets.only(right: 10, left: 10),
+                    width: MediaQuery.of(context).size.width,
+                    // color: Colors.amber,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10,),
+                        ReadMoreText(quran.translation!.id.toString(),
+                          trimLines: 4,
+                          colorClickableText: Colors.green,
+                          trimCollapsedText: 'Lihat Lebih banyak',
+                          trimExpandedText: ' Lihat lebih sedikit',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        )
+                      ],
+                    )
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -299,111 +341,128 @@ class _QuranPagesState extends State<QuranPages> {
         itemCount: data.data![quranNumber].verses!.length,
         itemBuilder: (context, index){
           var quran = data.data![quranNumber];
-          return Container(
-            padding: EdgeInsets.all(5),
-            margin: EdgeInsets.only(bottom: 10),
-            color: index.isOdd ? Colors.grey[50] : Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 13,
-                        backgroundImage: AssetImage('assets/images/ayat_frame.png'),
-                        backgroundColor: Colors.transparent,
-                        child: Text(quran.verses![index].number!.inSurah.toString(), style: TextStyle(fontSize: 11, color: Colors.green),),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: (){
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              audioPlayer.stop();
-                              HapticFeedback.vibrate();
-                              Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => TafsirPages(
-                                quranNumber: quranNumber,
-                                numberInSurah: quran.verses![index].number!.inSurah!.toInt(),
-                              )));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1,
-                                  color: Colors.blueGrey,
+          return FocusedMenuHolder(
+            blurBackgroundColor: Colors.black.withOpacity(0.5),
+            blurSize: 1,
+            onPressed: (){
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            animateMenuItems: false,
+            menuItems: [
+              FocusedMenuItem(
+                backgroundColor: Colors.black.withOpacity(0.5),
+                title: Text('Waqtu Digital Qur`an Indonesia\ndapatkan di PlayStore', style: TextStyle(fontSize: 11, color: Colors.white),), 
+                onPressed: (){}
+              ),
+            ],
+            child: Container(
+              padding: EdgeInsets.all(5),
+              margin: EdgeInsets.only(bottom: 10),
+              color: index.isOdd ? Colors.grey[50] : Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(left: 10,top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 13,
+                          backgroundImage: AssetImage('assets/images/ayat_frame.png'),
+                          backgroundColor: Colors.transparent,
+                          child: Text(quran.verses![index].number!.inSurah.toString(), style: TextStyle(fontSize: 11, color: Colors.green),),
+                        ),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                audioPlayer.stop();
+                                HapticFeedback.vibrate();
+                                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => TafsirPages(
+                                  quranNumber: quranNumber,
+                                  numberInSurah: quran.verses![index].number!.inSurah!.toInt(),
+                                )));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.only(left: 5, right: 5, top: 2, bottom: 2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.blueGrey,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5)
                                 ),
-                                borderRadius: BorderRadius.circular(5)
+                                child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                               ),
-                              child: Text('Tafsir', style: TextStyle(fontSize: 11, color: Colors.blueGrey,),),
                             ),
-                          ),
-                          SizedBox(width: 10,),
-                          GestureDetector(
-                            onTap: () async {
-                              HapticFeedback.vibrate();
-                              try{
-                                final result = await InternetAddress.lookup('google.com');
-                                if (result.isNotEmpty) {
-                                  
+                            SizedBox(width: 10,),
+                            GestureDetector(
+                              onTap: () async {
+                                HapticFeedback.vibrate();
+                                try{
+                                  final result = await InternetAddress.lookup('google.com');
+                                  if (result.isNotEmpty) {
+                                    setState(() {
+                                      nilaiIndex = index;
+                                    });
+                                    _playAudio(quran.verses![index].audio!.primary);
+                                  }
+                                }catch (e){
+                                  Fluttertoast.showToast(msg: 'Tidak terhubung Internet');
                                 }
-                              }catch (e){
-                                Fluttertoast.showToast(msg: 'Tidak terhubung Internet');
-                              }
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: nilaiIndex == index ? Colors.lightBlue : Colors.grey,
-                                borderRadius: BorderRadius.circular(8)
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: nilaiIndex == index ? Colors.lightBlue : Colors.grey,
+                                  borderRadius: BorderRadius.circular(8)
+                                ),
+                                padding: EdgeInsets.all(3),
+                                child: isPlaying ? nilaiIndex == index ? Icon(Icons.pause, size: 16, color: Colors.white,) : Icon(Icons.music_note_outlined, size: 16, color: Colors.white,) : Icon(Icons.music_note_outlined, size: 16, color: Colors.white,),
                               ),
-                              padding: EdgeInsets.all(3),
-                              child: Icon(Icons.music_note_outlined, size: 16, color: Colors.white,),
                             ),
-                          ),
-                          SizedBox(width: 10,)
-                        ],
-                      )
-                    ],
+                            SizedBox(width: 10,)
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
+          
+                  SizedBox(height: 10,),
+                  
+                  Container(
+                      padding: EdgeInsets.only(right: 10, left: 20),
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(quran.verses![index].text!.arab.toString(), textAlign: TextAlign.end, style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'Misbah',
+                        height: 2,
+                        color: Colors.blueGrey,
+                      ),),
+                    ),
 
-                SizedBox(height: 10,),
-                
-                Container(
-                  padding: EdgeInsets.only(right: 10, left: 10),
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(quran.verses![index].text!.arab.toString(), textAlign: TextAlign.right, style: TextStyle(
-                    fontSize: 28,
-                    fontFamily: 'Misbah',
-                    height: 2,
-                    color: Colors.blueGrey
-                  ),),
-                ),
-
-                SizedBox(height: 5,),
-                Container(
-                  padding: EdgeInsets.only(right: 10, left: 10),
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10,),
-                      ReadMoreText(quran.verses![index].translation!.id.toString(),
-                        trimLines: 4,
-                        colorClickableText: Colors.green,
-                        trimCollapsedText: 'Lihat Lebih banyak',
-                        trimExpandedText: ' Lihat lebih sedikit',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                      ),
-                    ],
-                  )
-                ),
-                SizedBox(height: 5,),
-              ],
+                  Container(
+                    padding: EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10,),
+                        ReadMoreText(quran.verses![index].translation!.id.toString(),
+                          trimLines: 4,
+                          colorClickableText: Colors.green,
+                          trimCollapsedText: 'Lihat Lebih banyak',
+                          trimExpandedText: ' Lihat lebih sedikit',
+                          style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                        ),
+                      ],
+                    )
+                  ),
+                  SizedBox(height: 5,),
+                ],
+              ),
             ),
           );
         },

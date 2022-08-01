@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
 
 import 'package:adhan/adhan.dart';
@@ -43,7 +42,6 @@ class _WaktuShalatState extends State<WaktuShalat> {
         int maghribAlarmID = 4;
           int isyaAlarmID = 5;
 
-  final audioPlayer = AudioPlayer();
   late PrayerTimes _prayerTimes;
 
   bool getLocation = false;
@@ -54,6 +52,8 @@ class _WaktuShalatState extends State<WaktuShalat> {
   bool ashar = false;
   bool maghrib = false;
   bool isya = false;
+
+  final audioPlayer = AudioPlayer();
 
   _getPermission() async {
     var _permission = await location.hasPermission();
@@ -80,32 +80,30 @@ class _WaktuShalatState extends State<WaktuShalat> {
     }
 
     _locationData = await location.getLocation();
-      if (_locationData != null) {
-        var address = await geo.GeocodingPlatform.instance.placemarkFromCoordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
-        Weather w = await wf.currentWeatherByLocation(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
+      var address = await geo.GeocodingPlatform.instance.placemarkFromCoordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
+      Weather w = await wf.currentWeatherByLocation(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
 
-        setState(() {
-          getLocation = true;
-          cityName = address.first.subAdministrativeArea.toString();
-          WeatherName = w.weatherDescription.toString();
-          WeatherIcon = w.weatherIcon.toString();
-          WeatherTemp = w.temperature.toString();
-          WeatherSpeed = w.windSpeed.toString();
-          WeatherHumidity = w.humidity.toString();
-        });
-        
-        final prefs = await SharedPreferences.getInstance();
-        final myCoordinates = Coordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble()); // Replace with your own location lat, lng.
-        final params = CalculationMethod.singapore.getParameters();
-        params.madhab = Madhab.shafi;
-        _prayerTimes = PrayerTimes.today(myCoordinates, params);
+      setState(() {
+        getLocation = true;
+        cityName = address.first.subAdministrativeArea.toString();
+        WeatherName = w.weatherDescription.toString();
+        WeatherIcon = w.weatherIcon.toString();
+        WeatherTemp = w.temperature.toString();
+        WeatherSpeed = w.windSpeed.toString();
+        WeatherHumidity = w.humidity.toString();
+      });
+      
+      final prefs = await SharedPreferences.getInstance();
+      final myCoordinates = Coordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble()); // Replace with your own location lat, lng.
+      final params = CalculationMethod.singapore.getParameters();
+      params.madhab = Madhab.shafi;
+      _prayerTimes = PrayerTimes.today(myCoordinates, params);
 
-        subuh = prefs.getBool('subuhKey')?? false;
-        dzuhur = prefs.getBool('dzuhurKey')?? false;
-        ashar = prefs.getBool('asharKey')?? false;
-        maghrib = prefs.getBool('maghribKey')?? false;
-        isya = prefs.getBool('isyaKey')?? false;
-      }
+      subuh = prefs.getBool('subuhKey')?? false;
+      dzuhur = prefs.getBool('dzuhurKey')?? false;
+      ashar = prefs.getBool('asharKey')?? false;
+      maghrib = prefs.getBool('maghribKey')?? false;
+      isya = prefs.getBool('isyaKey')?? false;
   }
 
   _checkInternet() async {
@@ -776,7 +774,7 @@ void alarmAdzanSubuh() {
       content: NotificationContent(
           id: 1,
           channelKey: 'high_importance_channel',
-          title: '🕋 Waqtu Shalat',
+          title: 'Waqtu Shalat',
           body: 'Memasuki Waktu Subuh pada lokasi anda',
           criticalAlert: true,
           displayOnBackground: true,
@@ -784,22 +782,22 @@ void alarmAdzanSubuh() {
           wakeUpScreen: true
       ),
     );
-}
+  }
 
-void alarmAdzan() {
-  AudioPlayer audioPlayer = AudioPlayer();
-  audioPlayer.play(AssetSource('audio/adzan/adzan_subuh.mp3'));
+  void alarmAdzan() {
+    AudioPlayer audioPlayer = AudioPlayer();
+    audioPlayer.play(AssetSource('audio/adzan/adzan.mp3'));
 
-  AwesomeNotifications().createNotification(
-    content: NotificationContent(
-        id: 2,
-        channelKey: 'high_importance_channel',
-        title: '🕋 Waqtu Shalat',
-        body: 'Memasuki Waktu Sholat pada lokasi anda',
-        criticalAlert: true,
-        displayOnBackground: true,
-        displayOnForeground: true,
-        wakeUpScreen: true
-    ),
-  );
-}
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+          id: 2,
+          channelKey: 'high_importance_channel',
+          title: 'Waqtu Shalat',
+          body: 'Memasuki Waktu Sholat pada lokasi anda',
+          criticalAlert: true,
+          displayOnBackground: true,
+          displayOnForeground: true,
+          wakeUpScreen: true
+      ),
+    );
+  }

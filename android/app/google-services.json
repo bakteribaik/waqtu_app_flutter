@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "742500441969",
+    "firebase_url": "https://waqtu-dc686-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "waqtu-dc686",
     "storage_bucket": "waqtu-dc686.appspot.com"
   },
@@ -13,6 +14,30 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "742500441969-182jkp28dsaipnh45f1j8cdb3cqotah3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.waqtuindonesia",
+            "certificate_hash": "3ec2de8329aaeeb70fde0fd87c1c0a33c33901a3"
+          }
+        },
+        {
+          "client_id": "742500441969-ko31k1jom9e4tmkn5ias3i61gr064uml.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.waqtuindonesia",
+            "certificate_hash": "9e9dbdb6f0667cf546216624929f74857358f3ec"
+          }
+        },
+        {
+          "client_id": "742500441969-o50hcn4gnlk4ah8osf70bm0g1nd766c0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.waqtuindonesia",
+            "certificate_hash": "d5b6e32b44b52e6f18ac419f66a8a1c48a112007"
+          }
+        },
         {
           "client_id": "742500441969-llf79vll682o3qajmlsdcg5k7hantr7n.apps.googleusercontent.com",
           "client_type": 3
@@ -32,7 +57,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-8897668405689680~8652246560"
     }
   ],
   "configuration_version": "1"
