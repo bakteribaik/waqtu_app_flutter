@@ -4,7 +4,8 @@ class AdHelper {
 
   static String get bannerAdUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/6300978111';
+      return 'ca-app-pub-3940256099942544/6300978111'; //Test Banner ID
+      //return 'ca-app-pub-8897668405689680/4569436175'; //Real Banner ID
     }else {
       throw new UnsupportedError('Unsupported platform');
     }

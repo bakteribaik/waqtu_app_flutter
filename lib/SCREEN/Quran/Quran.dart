@@ -302,7 +302,7 @@ class _QuranPagesState extends State<QuranPages> {
                       fontSize: 28,
                       fontFamily: 'Misbah',
                       height: 2,
-                      color: Colors.blueGrey
+                      color: Color.fromARGB(192, 0, 0, 0),
                     ),),
                   ),
           
@@ -439,7 +439,7 @@ class _QuranPagesState extends State<QuranPages> {
                         fontSize: 24,
                         fontFamily: 'Misbah',
                         height: 2,
-                        color: Colors.blueGrey,
+                        color: Color.fromARGB(192, 0, 0, 0),
                       ),),
                     ),
 

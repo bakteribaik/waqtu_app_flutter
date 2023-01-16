@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,8 +22,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String query = '';
   String gender = '';
-
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   _simpanData() async {
     var uid = DateTime.now().millisecondsSinceEpoch;

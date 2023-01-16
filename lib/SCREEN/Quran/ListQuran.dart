@@ -81,7 +81,7 @@ class _ListQuranState extends State<ListQuran> {
           color: Colors.grey
         ),
         backgroundColor: Colors.transparent,
-        title: Text('Qur`an', style: TextStyle(color: Color.fromARGB(255, 50, 172, 111), fontWeight: FontWeight.bold, fontSize: 15),),
+        title: Text('Daftar Surah', style: TextStyle(color: Color.fromARGB(255, 50, 172, 111), fontWeight: FontWeight.bold, fontSize: 15),),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -157,7 +157,7 @@ class _ListQuranState extends State<ListQuran> {
                 ),
                 title: Row(
                   children: [
-                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),),
+                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(192, 0, 0, 0),),),
                      SizedBox(width: 5,),
                      GestureDetector(
                       onTap: () async {
@@ -232,7 +232,7 @@ class _ListQuranState extends State<ListQuran> {
                 ),
                 title: Row(
                   children: [
-                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),),
+                     Text(quran.name!.transliteration!.id.toString().replaceAll('-', ' '), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(192, 0, 0, 0),),),
                      SizedBox(width: 5,),
                      GestureDetector(
                       onTap: () async {

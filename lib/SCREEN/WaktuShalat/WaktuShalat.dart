@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:adhan/adhan.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -9,8 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/weather.dart';
 
@@ -26,6 +28,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
   WeatherFactory wf = new WeatherFactory("b24f187152d5cec97d6753cf00ee510d", language: Language.INDONESIAN);
 
   var location  = new Location();
+  Timer? timer;
 
   late LocationData _locationData;
 
@@ -56,60 +59,82 @@ class _WaktuShalatState extends State<WaktuShalat> {
   final audioPlayer = AudioPlayer();
 
   _getPermission() async {
-    var _permission = await location.hasPermission();
-    var _locationEnabled = await location.serviceEnabled();
-      if (_permission == PermissionStatus.denied || _permission == PermissionStatus.deniedForever) {
-        _permission = await location.requestPermission();
-      }else{
-        setState(() {});
-      }
+    var LocationStatus = await Permission.location.status;
+    var ServiceStatus = await location.serviceEnabled();
 
-      if (!_locationEnabled) {
-          _locationEnabled = await location.requestService();
+    if (LocationStatus.isGranted){
+      if (ServiceStatus == true) {
+        _locationData = await location.getLocation();
+        print('satu');
+        _getData();
       }else{
-        setState(() {});
+        ServiceStatus = await location.requestService();
+        if (ServiceStatus == true) {
+          _locationData = await location.getLocation();
+          print('dua');
+          _getData();
+        }
       }
-    
-    if (_locationEnabled == false) {
-      Future.delayed(Duration(seconds: 2),(){
-        Navigator.of(context).pop();
-         Fluttertoast.showToast(msg: 'waktu sholat membutuhkan akses lokasi');
-      });
     }else{
-      setState(() {});
+      LocationStatus = await Permission.location.request();
+      if (LocationStatus.isGranted){
+        if (ServiceStatus == true) {
+          _locationData = await location.getLocation();
+          print('tiga');
+          _getData();
+        }else{
+          ServiceStatus = await location.requestService();
+          if (ServiceStatus == true) {
+            _locationData = await location.getLocation();
+            print('empat');
+            _getData();
+          }
+        }
+      }else{
+        Future.delayed(Duration(seconds: 1),(){
+          Navigator.of(context).pop();
+        });
+      }
     }
+  }
 
-    _locationData = await location.getLocation();
-      var address = await geo.GeocodingPlatform.instance.placemarkFromCoordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
-      Weather w = await wf.currentWeatherByLocation(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
+  _getData() async {
+    var address = '';
+    try{
+      var aaddress = await geo.placemarkFromCoordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
+      address = aaddress.first.subAdministrativeArea.toString();
+    }catch(e){
+      address = ' Lokasi anda saat ini';
+    }
+    Weather w = await wf.currentWeatherByLocation(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble());
 
-      setState(() {
-        getLocation = true;
-        cityName = address.first.subAdministrativeArea.toString();
-        WeatherName = w.weatherDescription.toString();
-        WeatherIcon = w.weatherIcon.toString();
-        WeatherTemp = w.temperature.toString();
-        WeatherSpeed = w.windSpeed.toString();
-        WeatherHumidity = w.humidity.toString();
-      });
-      
-      final prefs = await SharedPreferences.getInstance();
-      final myCoordinates = Coordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble()); // Replace with your own location lat, lng.
-      final params = CalculationMethod.singapore.getParameters();
-      params.madhab = Madhab.shafi;
-      _prayerTimes = PrayerTimes.today(myCoordinates, params);
+    setState(() {
+      getLocation = true;
+      cityName = address;
+      WeatherName = w.weatherDescription.toString();
+      WeatherIcon = w.weatherIcon.toString();
+      WeatherTemp = w.temperature.toString();
+      WeatherSpeed = w.windSpeed.toString();
+      WeatherHumidity = w.humidity.toString();
+    });
+    
+    final prefs = await SharedPreferences.getInstance();
+    final myCoordinates = Coordinates(_locationData.latitude!.toDouble(), _locationData.longitude!.toDouble()); // Replace with your own location lat, lng.
+    final params = CalculationMethod.singapore.getParameters();
+    params.madhab = Madhab.shafi;
+    _prayerTimes = PrayerTimes.today(myCoordinates, params);
 
-      subuh = prefs.getBool('subuhKey')?? false;
-      dzuhur = prefs.getBool('dzuhurKey')?? false;
-      ashar = prefs.getBool('asharKey')?? false;
-      maghrib = prefs.getBool('maghribKey')?? false;
-      isya = prefs.getBool('isyaKey')?? false;
+    subuh = prefs.getBool('subuhKey')?? false;
+    dzuhur = prefs.getBool('dzuhurKey')?? false;
+    ashar = prefs.getBool('asharKey')?? false;
+    maghrib = prefs.getBool('maghribKey')?? false;
+    isya = prefs.getBool('isyaKey')?? false;
   }
 
   _checkInternet() async {
     try{
       final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty) {
+      if (result != null) {
         _getPermission();
       }
     }catch (e){
@@ -121,7 +146,14 @@ class _WaktuShalatState extends State<WaktuShalat> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    initializeDateFormatting('id', null);
     _checkInternet();
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
   }
 
   @override
@@ -135,7 +167,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
           color: Colors.grey
         ),
         backgroundColor: Colors.transparent,
-        title: Text('Waktu Shalat', style: TextStyle(color: Color.fromARGB(255, 50, 172, 111), fontWeight: FontWeight.bold, fontSize: 15),),
+        title: Text('Jadwal Shalat', style: TextStyle(color: Color.fromARGB(255, 50, 172, 111), fontWeight: FontWeight.bold, fontSize: 15),),
       ),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
@@ -153,6 +185,8 @@ class _WaktuShalatState extends State<WaktuShalat> {
                   ],
                 )
               ) : Text('Loading...'),
+
+              getLocation ?  
               Container(
                 margin: EdgeInsets.only(top: 20),
                 padding: EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
@@ -162,7 +196,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                   color: Colors.lightBlue[50],
                   borderRadius: BorderRadius.circular(25)
                 ),
-                child: getLocation ?  Row(
+                child: Row(
                   children: [
                     Container(
                       width: MediaQuery.of(context).size.width/3,
@@ -186,7 +220,7 @@ class _WaktuShalatState extends State<WaktuShalat> {
                                 color: Colors.green[300],
                                 borderRadius: BorderRadius.circular(10)
                               ),
-                              child: Text('${DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now())}', style: TextStyle(color: Colors.white, fontSize: 10),),
+                              child: Text('${DateFormat('EEEE, dd MMMM yyyy', 'id').format(DateTime.now())}', style: TextStyle(color: Colors.white, fontSize: 10),),
                             ),
                           )
                         ],
@@ -224,8 +258,8 @@ class _WaktuShalatState extends State<WaktuShalat> {
                       ),
                     ),
                   ]
-                ) : SizedBox()
-              ),
+                )
+              ): SizedBox(),
 
               SizedBox(height: 30,),
 
@@ -730,17 +764,13 @@ class _WaktuShalatState extends State<WaktuShalat> {
               )
               : SizedBox(),
 
-              Container(
-                margin: EdgeInsets.only(top: 10),
-                width: MediaQuery.of(context).size.width/1.1,
-                child: Text('data lokasi diambil langsung dari perangkat, waktu sholat yang sudah dikalkulasi sesuai dengan perhitungan dari Universitas ilmu islam dan sesuai lokasi perangkat sekarang', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey),)
-              ),
+              SizedBox(height: 10,),
               
               getLocation ? SizedBox() :
               Column(
                 children: [
                   SizedBox(height: 10,),
-                  Text('Refresh jika Loading terlalu lama...', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey),),
+                  Text('Refresh jika Loading terlalu lama...', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Colors.grey),),
                   GestureDetector(
                     onTap: (){
                       HapticFeedback.vibrate();

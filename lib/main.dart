@@ -1,10 +1,10 @@
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:waqtuu/ROUTERS/PermissionScreen.dart';
+import 'package:waqtuu/ROUTERS/Routers.dart';
 import 'package:waqtuu/SCREEN/HomePages/HomePages.dart';
 
 void main() async {  
@@ -46,7 +46,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Poppins', backgroundColor: Colors.grey[200]),
-      home: HomePages(),
+      //home: HomePages(),
+      home: Routers(),
     );
   }
 }
